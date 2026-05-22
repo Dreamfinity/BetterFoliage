@@ -47,7 +47,7 @@ class ThreadLocalDelegate<T>(init: () -> T) {
 inline fun <reified T> Iterable<T>.forEachPairIndexed(func: (Int, T, T) -> Unit) {
     var previous: T? = null
     forEachIndexed { idx, current ->
-        if (previous != null) func(idx, current, previous)
+        previous?.let { func(idx, current, it) }
         previous = current
     }
 }
