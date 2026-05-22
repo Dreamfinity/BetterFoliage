@@ -1,21 +1,23 @@
 package mods.octarinecore.client.render
 
 import net.minecraftforge.common.util.ForgeDirection
-import java.lang.Math.*
+import java.lang.Math.min
 
 typealias EdgeShaderFactory = (ForgeDirection, ForgeDirection) -> Shader
 typealias CornerShaderFactory = (ForgeDirection, ForgeDirection, ForgeDirection) -> Shader
 typealias ShaderFactory = (Quad, Vertex) -> Shader
 
 /** Holds shading values for block corners as calculated by vanilla Minecraft rendering. */
-class AoData() {
+class AoData {
     var valid = false
     var brightness = 0
     var red: Float = 0.0f
     var green: Float = 0.0f
     var blue: Float = 0.0f
 
-    fun reset() { valid = false }
+    fun reset() {
+        valid = false
+    }
 
     fun set(brightness: Int, red: Float, green: Float, blue: Float) {
         if (valid) return
@@ -27,7 +29,7 @@ class AoData() {
     }
 
     companion object {
-        val black = AoData();
+        val black = AoData()
     }
 }
 
@@ -85,9 +87,11 @@ interface Shader {
  * @param[corner] shader instantiation lambda for corner vertices
  * @param[edge] shader instantiation lambda for edge midpoint vertices
  */
-fun faceOrientedAuto(overrideFace: ForgeDirection? = null,
-                     corner: CornerShaderFactory? = null,
-                     edge: EdgeShaderFactory? = null) =
+fun faceOrientedAuto(
+    overrideFace: ForgeDirection? = null,
+    corner: CornerShaderFactory? = null,
+    edge: EdgeShaderFactory? = null
+) =
     fun(quad: Quad, vertex: Vertex): Shader {
         val quadFace = overrideFace ?: quad.normal.nearestCardinal
         val nearestCorner = nearestPosition(vertex.xyz, faceCorners[quadFace.ordinal].asList) {
@@ -112,8 +116,10 @@ fun faceOrientedAuto(overrideFace: ForgeDirection? = null,
  * @param[overrideEdge] assume the given edge instead of going by the _quad_ normal
  * @param[corner] shader instantiation lambda
  */
-fun edgeOrientedAuto(overrideEdge: Pair<ForgeDirection, ForgeDirection>? = null,
-                     corner: CornerShaderFactory) =
+fun edgeOrientedAuto(
+    overrideEdge: Pair<ForgeDirection, ForgeDirection>? = null,
+    corner: CornerShaderFactory
+) =
     fun(quad: Quad, vertex: Vertex): Shader {
         val edgeDir = overrideEdge ?: nearestAngle(quad.normal, boxEdges) { it.first.vec + it.second.vec }.first
         val nearestFace = nearestPosition(vertex.xyz, edgeDir.toList()) { it.vec }.first

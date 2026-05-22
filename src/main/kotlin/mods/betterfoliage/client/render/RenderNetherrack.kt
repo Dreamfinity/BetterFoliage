@@ -15,11 +15,13 @@ class RenderNetherrack : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) 
 
     val netherrackIcon = iconSet(BetterFoliageMod.LEGACY_DOMAIN, "better_netherrack_%d")
     val netherrackModel = modelSet(64) { modelIdx ->
-        verticalRectangle(x1 = -0.5, z1 = 0.5, x2 = 0.5, z2 = -0.5, yTop = -0.5,
-        yBottom = -0.5 - random(Config.netherrack.heightMin, Config.netherrack.heightMax))
-        .setAoShader(faceOrientedAuto(overrideFace = DOWN, corner = cornerAo(Axis.Y)))
-        .setFlatShader(faceOrientedAuto(overrideFace = DOWN, corner = cornerFlat))
-        .toCross(UP) { it.move(xzDisk(modelIdx) * Config.shortGrass.hOffset) }.addAll()
+        verticalRectangle(
+            x1 = -0.5, z1 = 0.5, x2 = 0.5, z2 = -0.5, yTop = -0.5,
+            yBottom = -0.5 - random(Config.netherrack.heightMin, Config.netherrack.heightMax)
+        )
+            .setAoShader(faceOrientedAuto(overrideFace = DOWN, corner = cornerAo(Axis.Y)))
+            .setFlatShader(faceOrientedAuto(overrideFace = DOWN, corner = cornerFlat))
+            .toCross(UP) { it.move(xzDisk(modelIdx) * Config.shortGrass.hOffset) }.addAll()
 
     }
 
@@ -30,7 +32,7 @@ class RenderNetherrack : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) 
     override fun isEligible(ctx: BlockContext): Boolean {
         if (!Config.enabled || !Config.netherrack.enabled) return false
         return ctx.block == Blocks.netherrack &&
-        ctx.cameraDistance < Config.netherrack.distance
+                ctx.cameraDistance < Config.netherrack.distance
     }
 
     override fun render(ctx: BlockContext, parent: RenderBlocks): Boolean {

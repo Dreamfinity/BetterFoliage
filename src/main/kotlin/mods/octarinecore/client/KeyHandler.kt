@@ -6,7 +6,12 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent
 import cpw.mods.fml.common.gameevent.InputEvent
 import net.minecraft.client.settings.KeyBinding
 
-class KeyHandler(val modId: String, val defaultKey: Int, val lang: String, val action: (InputEvent.KeyInputEvent)->Unit) {
+class KeyHandler(
+    val modId: String,
+    val defaultKey: Int,
+    val lang: String,
+    val action: (InputEvent.KeyInputEvent) -> Unit
+) {
 
     val keyBinding = KeyBinding(lang, defaultKey, modId)
 

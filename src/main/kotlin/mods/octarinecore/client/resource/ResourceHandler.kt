@@ -20,9 +20,17 @@ import java.util.*
 // ============================
 // Resource types
 // ============================
-interface IStitchListener { fun onStitch(atlas: IIconRegister) }
-interface IConfigChangeListener { fun onConfigChange() }
-interface IWorldLoadListener { fun onWorldLoad(world: World) }
+interface IStitchListener {
+    fun onStitch(atlas: IIconRegister)
+}
+
+interface IConfigChangeListener {
+    fun onConfigChange()
+}
+
+interface IWorldLoadListener {
+    fun onWorldLoad(world: World)
+}
 
 /**
  * Base class for declarative resource handling.
@@ -51,9 +59,9 @@ open class ResourceHandler(val modId: String) {
     fun iconStatic(location: ResourceLocation) = iconStatic(location.resourceDomain, location.resourcePath)
     fun iconSet(domain: String, pathPattern: String) = IconSet(domain, pathPattern).apply { resources.add(this) }
     fun iconSet(location: ResourceLocation) = iconSet(location.resourceDomain, location.resourcePath)
-    fun model(init: Model.()->Unit) = ModelHolder(init).apply { resources.add(this) }
-    fun modelSet(num: Int, init: Model.(Int)->Unit) = ModelSet(num, init).apply { resources.add(this) }
-    fun vectorSet(num: Int, init: (Int)-> Double3) = VectorSet(num, init).apply { resources.add(this) }
+    fun model(init: Model.() -> Unit) = ModelHolder(init).apply { resources.add(this) }
+    fun modelSet(num: Int, init: Model.(Int) -> Unit) = ModelSet(num, init).apply { resources.add(this) }
+    fun vectorSet(num: Int, init: (Int) -> Double3) = VectorSet(num, init).apply { resources.add(this) }
     fun simplexNoise() = SimplexNoise().apply { resources.add(this) }
 
     // ============================
@@ -82,12 +90,16 @@ open class ResourceHandler(val modId: String) {
 // ============================
 class IconHolder(val domain: String, val name: String) : IStitchListener {
     var icon: IIcon? = null
-    override fun onStitch(atlas: IIconRegister) { icon = atlas.registerIcon("$domain:$name") }
+    override fun onStitch(atlas: IIconRegister) {
+        icon = atlas.registerIcon("$domain:$name")
+    }
 }
 
-class ModelHolder(val init: Model.()->Unit): IConfigChangeListener {
+class ModelHolder(val init: Model.() -> Unit) : IConfigChangeListener {
     var model: Model = Model().apply(init)
-    override fun onConfigChange() { model = Model().apply(init) }
+    override fun onConfigChange() {
+        model = Model().apply(init)
+    }
 }
 
 class IconSet(val domain: String, val namePattern: String) : IStitchListener {
@@ -95,33 +107,44 @@ class IconSet(val domain: String, val namePattern: String) : IStitchListener {
     var num = 0
 
     override fun onStitch(atlas: IIconRegister) {
-        num = 0;
+        num = 0
         (0..15).forEach { idx ->
             icons[idx] = null
             val locReal = ResourceLocation(domain, "textures/blocks/${namePattern.format(idx)}.png")
-            if (resourceManager[locReal] != null) icons[num++] = atlas.registerIcon("$domain:${namePattern.format(idx)}")
+            if (resourceManager[locReal] != null) icons[num++] =
+                atlas.registerIcon("$domain:${namePattern.format(idx)}")
         }
     }
 
     operator fun get(idx: Int) = if (num == 0) null else icons[idx % num]
 }
 
-class ModelSet(val num: Int, val init: Model.(Int)->Unit): IConfigChangeListener {
-    val models = Array(num) { Model().apply{ init(it) } }
-    override fun onConfigChange() { (0..num-1).forEach { models[it] = Model().apply{ init(it) } } }
-    operator fun get(idx: Int) = models[idx % num]
-}
-
-class VectorSet(val num: Int, val init: (Int)->Double3): IConfigChangeListener {
-    val models = Array(num) { init(it) }
-    override fun onConfigChange() { (0..num-1).forEach { models[it] = init(it) } }
-    operator fun get(idx: Int) = models[idx % num]
-}
-
-class SimplexNoise() : IWorldLoadListener {
-    var noise = NoiseGeneratorSimplex()
-    override fun onWorldLoad(world: World) { noise = NoiseGeneratorSimplex(Random(world.worldInfo.seed))
+class ModelSet(val num: Int, val init: Model.(Int) -> Unit) : IConfigChangeListener {
+    val models = Array(num) { Model().apply { init(it) } }
+    override fun onConfigChange() {
+        (0..num - 1).forEach { models[it] = Model().apply { init(it) } }
     }
-    operator fun get(x: Int, z: Int) = MathHelper.floor_double((noise.func_151605_a(x.toDouble(), z.toDouble()) + 1.0) * 32.0)
+
+    operator fun get(idx: Int) = models[idx % num]
+}
+
+class VectorSet(val num: Int, val init: (Int) -> Double3) : IConfigChangeListener {
+    val models = Array(num) { init(it) }
+    override fun onConfigChange() {
+        (0..num - 1).forEach { models[it] = init(it) }
+    }
+
+    operator fun get(idx: Int) = models[idx % num]
+}
+
+class SimplexNoise : IWorldLoadListener {
+    var noise = NoiseGeneratorSimplex()
+    override fun onWorldLoad(world: World) {
+        noise = NoiseGeneratorSimplex(Random(world.worldInfo.seed))
+    }
+
+    operator fun get(x: Int, z: Int) =
+        MathHelper.floor_double((noise.func_151605_a(x.toDouble(), z.toDouble()) + 1.0) * 32.0)
+
     operator fun get(pos: Int3) = get(pos.x, pos.z)
 }

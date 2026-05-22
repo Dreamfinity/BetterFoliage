@@ -1,13 +1,11 @@
 @file:JvmName("Utils")
+
 package mods.betterfoliage.client.render
 
 import mods.octarinecore.PI2
 import mods.octarinecore.client.render.*
 import net.minecraft.block.Block
 import net.minecraft.block.material.Material
-import net.minecraft.tileentity.TileEntity
-import net.minecraft.world.IBlockAccess
-import net.minecraft.world.biome.BiomeGenBase
 import net.minecraftforge.common.util.ForgeDirection
 import net.minecraftforge.common.util.ForgeDirection.*
 
@@ -19,15 +17,16 @@ val snowOffset = UP * 0.0625
 val normalLeavesRot = arrayOf(Rotation.identity)
 val denseLeavesRot = arrayOf(Rotation.identity, Rotation.rot90[EAST.ordinal], Rotation.rot90[SOUTH.ordinal])
 
-val whitewash: RenderVertex.(ShadingContext, Int, Quad, Int, Vertex)->Unit = { ctx, qi, q, vi, v -> setGrey(1.4f) }
-val greywash: RenderVertex.(ShadingContext, Int, Quad, Int, Vertex)->Unit = { ctx, qi, q, vi, v -> setGrey(1.0f) }
+val whitewash: RenderVertex.(ShadingContext, Int, Quad, Int, Vertex) -> Unit = { ctx, qi, q, vi, v -> setGrey(1.4f) }
+val greywash: RenderVertex.(ShadingContext, Int, Quad, Int, Vertex) -> Unit = { ctx, qi, q, vi, v -> setGrey(1.0f) }
 
 val Block.isSnow: Boolean get() = material.let { it == Material.snow || it == Material.craftedSnow }
 
-fun Quad.toCross(rotAxis: ForgeDirection, trans: (Quad)->Quad) =
+fun Quad.toCross(rotAxis: ForgeDirection, trans: (Quad) -> Quad) =
     (0..3).map { rotIdx ->
         trans(rotate(Rotation.rot90[rotAxis.ordinal] * rotIdx).mirrorUV(rotIdx > 1, false))
     }
+
 fun Quad.toCross(rotAxis: ForgeDirection) = toCross(rotAxis) { it }
 
 fun xzDisk(modelIdx: Int) = (PI2 * modelIdx / 64.0).let { Double3(Math.cos(it), 0.0, Math.sin(it)) }
@@ -41,7 +40,7 @@ val rotationFromUp = arrayOf(
     Rotation.rot90[NORTH.ordinal]
 )
 
-fun Model.mix(first: Model, second: Model, predicate: (Int)->Boolean) {
+fun Model.mix(first: Model, second: Model, predicate: (Int) -> Boolean) {
     first.quads.forEachIndexed { qi, quad ->
         val otherQuad = second.quads[qi]
         Quad(

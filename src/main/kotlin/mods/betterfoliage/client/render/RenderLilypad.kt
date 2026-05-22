@@ -5,21 +5,22 @@ import mods.betterfoliage.client.Client
 import mods.betterfoliage.client.config.Config
 import mods.octarinecore.client.render.*
 import net.minecraft.client.renderer.RenderBlocks
-import net.minecraftforge.common.util.ForgeDirection.*
+import net.minecraftforge.common.util.ForgeDirection.DOWN
+import net.minecraftforge.common.util.ForgeDirection.UP
 import org.apache.logging.log4j.Level
 
 class RenderLilypad : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) {
 
     val rootModel = model {
         verticalRectangle(x1 = -0.5, z1 = 0.5, x2 = 0.5, z2 = -0.5, yBottom = -1.5, yTop = -0.5)
-        .setFlatShader(FlatOffsetNoColor(Int3.zero))
-        .toCross(UP).addAll()
+            .setFlatShader(FlatOffsetNoColor(Int3.zero))
+            .toCross(UP).addAll()
     }
     val flowerModel = model {
         verticalRectangle(x1 = -0.5, z1 = 0.5, x2 = 0.5, z2 = -0.5, yBottom = 0.0, yTop = 1.0)
-        .scale(0.5).move(0.5 to DOWN)
-        .setFlatShader(FlatOffsetNoColor(Int3.zero))
-        .toCross(UP).addAll()
+            .scale(0.5).move(0.5 to DOWN)
+            .setFlatShader(FlatOffsetNoColor(Int3.zero))
+            .toCross(UP).addAll()
     }
     val rootIcon = iconSet(BetterFoliageMod.LEGACY_DOMAIN, "better_lilypad_roots_%d")
     val flowerIcon = iconSet(BetterFoliageMod.LEGACY_DOMAIN, "better_lilypad_flower_%d")
@@ -32,8 +33,8 @@ class RenderLilypad : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) {
 
     override fun isEligible(ctx: BlockContext): Boolean =
         Config.enabled && Config.lilypad.enabled &&
-        ctx.cameraDistance < Config.lilypad.distance &&
-        Config.blocks.lilypad.matchesID(ctx.block)
+                ctx.cameraDistance < Config.lilypad.distance &&
+                Config.blocks.lilypad.matchesID(ctx.block)
 
     override fun render(ctx: BlockContext, parent: RenderBlocks): Boolean {
         if (renderWorldBlockBase(parent, face = alwaysRender)) return true

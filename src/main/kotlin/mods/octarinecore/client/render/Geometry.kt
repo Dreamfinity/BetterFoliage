@@ -12,17 +12,26 @@ import net.minecraftforge.common.util.ForgeDirection.*
 // ================================
 enum class Axis { X, Y, Z }
 enum class Dir { P, N }
+
 val axes = listOf(X, Y, Z)
 val axisDirs = listOf(P, N)
 val forgeDirs = ForgeDirection.VALID_DIRECTIONS
 val forgeDirOffsets = forgeDirs.map { Int3(it) }
-val ForgeDirection.axis: Axis get() = when(this) {EAST, WEST -> X; UP, DOWN -> Y; else -> Z }
-val ForgeDirection.dir: Dir get() = when(this) {UP, SOUTH, EAST -> P; else -> N }
-val Pair<Axis, Dir>.face: ForgeDirection get() = when(this) {
-    X to P -> EAST; X to N -> WEST; Y to P -> UP; Y to N -> DOWN; Z to P -> SOUTH; Z to N -> NORTH; else -> UNKNOWN
-}
-val ForgeDirection.perpendiculars: List<ForgeDirection> get() =
-    axes.filter { it != this.axis }.cross(axisDirs).map { it.face }
+val ForgeDirection.axis: Axis
+    get() = when (this) {
+        EAST, WEST -> X; UP, DOWN -> Y; else -> Z
+    }
+val ForgeDirection.dir: Dir
+    get() = when (this) {
+        UP, SOUTH, EAST -> P; else -> N
+    }
+val Pair<Axis, Dir>.face: ForgeDirection
+    get() = when (this) {
+        X to P -> EAST; X to N -> WEST; Y to P -> UP; Y to N -> DOWN; Z to P -> SOUTH; Z to N -> NORTH; else -> UNKNOWN
+    }
+val ForgeDirection.perpendiculars: List<ForgeDirection>
+    get() =
+        axes.filter { it != this.axis }.cross(axisDirs).map { it.face }
 val ForgeDirection.offset: Int3 get() = forgeDirOffsets[ordinal]
 
 // ================================
@@ -30,12 +39,14 @@ val ForgeDirection.offset: Int3 get() = forgeDirOffsets[ordinal]
 // ================================
 operator fun ForgeDirection.times(scale: Double) =
     Double3(offsetX.toDouble() * scale, offsetY.toDouble() * scale, offsetZ.toDouble() * scale)
+
 val ForgeDirection.vec: Double3 get() = Double3(offsetX.toDouble(), offsetY.toDouble(), offsetZ.toDouble())
 
 /** 3D vector of [Double]s. Offers both mutable operations, and immutable operations in operator notation. */
 data class Double3(var x: Double, var y: Double, var z: Double) {
     constructor(x: Float, y: Float, z: Float) : this(x.toDouble(), y.toDouble(), z.toDouble())
     constructor(dir: ForgeDirection) : this(dir.offsetX.toDouble(), dir.offsetY.toDouble(), dir.offsetZ.toDouble())
+
     companion object {
         val zero: Double3 get() = Double3(0.0, 0.0, 0.0)
         fun weight(v1: Double3, weight1: Double, v2: Double3, weight2: Double) =
@@ -57,16 +68,43 @@ data class Double3(var x: Double, var y: Double, var z: Double) {
     )
 
     // mutable operations
-    fun setTo(other: Double3): Double3 { x = other.x; y = other.y; z = other.z; return this }
-    fun setTo(x: Double, y: Double, z: Double): Double3 { this.x = x; this.y = y; this.z = z; return this }
+    fun setTo(other: Double3): Double3 {
+        x = other.x; y = other.y; z = other.z; return this
+    }
+
+    fun setTo(x: Double, y: Double, z: Double): Double3 {
+        this.x = x; this.y = y; this.z = z; return this
+    }
+
     fun setTo(x: Float, y: Float, z: Float) = setTo(x.toDouble(), y.toDouble(), z.toDouble())
-    fun add(other: Double3): Double3 { x += other.x; y += other.y; z += other.z; return this }
-    fun add(x: Double, y: Double, z: Double): Double3 { this.x += x; this.y += y; this.z += z; return this }
-    fun sub(other: Double3): Double3 { x -= other.x; y -= other.y; z -= other.z; return this }
-    fun sub(x: Double, y: Double, z: Double): Double3 { this.x -= x; this.y -= y; this.z -= z; return this }
-    fun invert(): Double3 { x = -x; y = -y; z = -z; return this }
-    fun mul(scale: Double): Double3 { x *= scale; y *= scale; z *= scale; return this }
-    fun mul(other: Double3): Double3 { x *= other.x; y *= other.y; z *= other.z; return this }
+    fun add(other: Double3): Double3 {
+        x += other.x; y += other.y; z += other.z; return this
+    }
+
+    fun add(x: Double, y: Double, z: Double): Double3 {
+        this.x += x; this.y += y; this.z += z; return this
+    }
+
+    fun sub(other: Double3): Double3 {
+        x -= other.x; y -= other.y; z -= other.z; return this
+    }
+
+    fun sub(x: Double, y: Double, z: Double): Double3 {
+        this.x -= x; this.y -= y; this.z -= z; return this
+    }
+
+    fun invert(): Double3 {
+        x = -x; y = -y; z = -z; return this
+    }
+
+    fun mul(scale: Double): Double3 {
+        x *= scale; y *= scale; z *= scale; return this
+    }
+
+    fun mul(other: Double3): Double3 {
+        x *= other.x; y *= other.y; z *= other.z; return this
+    }
+
     fun rotateMut(rot: Rotation): Double3 {
         val rotX = rot.rotatedComponent(EAST, x, y, z)
         val rotY = rot.rotatedComponent(UP, x, y, z)
@@ -90,6 +128,7 @@ data class Int3(var x: Int, var y: Int, var z: Int) {
         offset.first * offset.second.offsetY,
         offset.first * offset.second.offsetZ
     )
+
     companion object {
         val zero = Int3(0, 0, 0)
     }
@@ -101,6 +140,7 @@ data class Int3(var x: Int, var y: Int, var z: Int) {
         y + other.first * other.second.offsetY,
         z + other.first * other.second.offsetZ
     )
+
     operator fun unaryMinus() = Int3(-x, -y, -z)
     operator fun minus(other: Int3) = Int3(x - other.x, y - other.y, z - other.z)
     operator fun times(scale: Int) = Int3(x * scale, y * scale, z * scale)
@@ -114,13 +154,34 @@ data class Int3(var x: Int, var y: Int, var z: Int) {
     )
 
     // mutable operations
-    fun setTo(other: Int3): Int3 { x = other.x; y = other.y; z = other.z; return this }
-    fun setTo(x: Int, y: Int, z: Int): Int3 { this.x = x; this.y = y; this.z = z; return this }
-    fun add(other: Int3): Int3 { x += other.x; y += other.y; z += other.z; return this }
-    fun sub(other: Int3): Int3 { x -= other.x; y -= other.y; z -= other.z; return this }
-    fun invert(): Int3 { x = -x; y = -y; z = -z; return this }
-    fun mul(scale: Int): Int3 { x *= scale; y *= scale; z *= scale; return this }
-    fun mul(other: Int3): Int3 { x *= other.x; y *= other.y; z *= other.z; return this }
+    fun setTo(other: Int3): Int3 {
+        x = other.x; y = other.y; z = other.z; return this
+    }
+
+    fun setTo(x: Int, y: Int, z: Int): Int3 {
+        this.x = x; this.y = y; this.z = z; return this
+    }
+
+    fun add(other: Int3): Int3 {
+        x += other.x; y += other.y; z += other.z; return this
+    }
+
+    fun sub(other: Int3): Int3 {
+        x -= other.x; y -= other.y; z -= other.z; return this
+    }
+
+    fun invert(): Int3 {
+        x = -x; y = -y; z = -z; return this
+    }
+
+    fun mul(scale: Int): Int3 {
+        x *= scale; y *= scale; z *= scale; return this
+    }
+
+    fun mul(other: Int3): Int3 {
+        x *= other.x; y *= other.y; z *= other.z; return this
+    }
+
     fun rotateMut(rot: Rotation): Int3 {
         val rotX = rot.rotatedComponent(EAST, x, y, z)
         val rotY = rot.rotatedComponent(UP, x, y, z)
@@ -132,8 +193,10 @@ data class Int3(var x: Int, var y: Int, var z: Int) {
 // ================================
 // Rotation
 // ================================
-val ForgeDirection.rotations: Array<ForgeDirection> get() =
-    Array(6) { idx -> ForgeDirection.values()[ForgeDirection.ROTATION_MATRIX[ordinal][idx]] }
+val ForgeDirection.rotations: Array<ForgeDirection>
+    get() =
+        Array(6) { idx -> ForgeDirection.values()[ForgeDirection.ROTATION_MATRIX[ordinal][idx]] }
+
 fun ForgeDirection.rotate(rot: Rotation) = rot.forward[ordinal]
 fun rot(axis: ForgeDirection) = Rotation.rot90[axis.ordinal]
 
@@ -147,13 +210,21 @@ class Rotation(val forward: Array<ForgeDirection>, val reverse: Array<ForgeDirec
         Array(6) { idx -> forward[other.forward[idx].ordinal] },
         Array(6) { idx -> other.reverse[reverse[idx].ordinal] }
     )
+
     operator fun unaryMinus() = Rotation(reverse, forward)
-    operator fun times(num: Int) = when(num % 4) { 1 -> this; 2 -> this + this; 3 -> -this; else -> identity }
+    operator fun times(num: Int) = when (num % 4) {
+        1 -> this; 2 -> this + this; 3 -> -this; else -> identity
+    }
 
     inline fun rotatedComponent(dir: ForgeDirection, x: Int, y: Int, z: Int) =
-        when(reverse[dir.ordinal]) { EAST -> x; WEST -> -x; UP -> y; DOWN -> -y; SOUTH -> z; NORTH -> -z; else -> 0 }
+        when (reverse[dir.ordinal]) {
+            EAST -> x; WEST -> -x; UP -> y; DOWN -> -y; SOUTH -> z; NORTH -> -z; else -> 0
+        }
+
     inline fun rotatedComponent(dir: ForgeDirection, x: Double, y: Double, z: Double) =
-        when(reverse[dir.ordinal]) { EAST -> x; WEST -> -x; UP -> y; DOWN -> -y; SOUTH -> z; NORTH -> -z; else -> 0.0 }
+        when (reverse[dir.ordinal]) {
+            EAST -> x; WEST -> -x; UP -> y; DOWN -> -y; SOUTH -> z; NORTH -> -z; else -> 0.0
+        }
 
     companion object {
         // Forge rotation matrix is left-hand
@@ -177,8 +248,8 @@ val boxEdges = forgeDirs.flatMap { face1 -> forgeDirs.filter { it.axis > face1.a
  * @param[objPos] lambda to calculate the position of an object
  * @return [Pair] of (object, distance)
  */
-fun <T> nearestPosition(vertex: Double3, objs: Iterable<T>, objPos: (T)->Double3): Pair<T, Double>  =
-        objs.map { it to (objPos(it) - vertex).length }.minBy { it.second }!!
+fun <T> nearestPosition(vertex: Double3, objs: Iterable<T>, objPos: (T) -> Double3): Pair<T, Double> =
+    objs.map { it to (objPos(it) - vertex).length }.minBy { it.second }!!
 
 /**
  * Get the object closest in orientation to the specified vector from a list of objects.
@@ -188,27 +259,31 @@ fun <T> nearestPosition(vertex: Double3, objs: Iterable<T>, objPos: (T)->Double3
  * @param[objAngle] lambda to calculate the orientation of an object
  * @return [Pair] of (object, normalized dot product)
  */
-fun <T> nearestAngle(vector: Double3, objs: Iterable<T>, objAngle: (T)->Double3): Pair<T, Double> =
-        objs.map { it to objAngle(it).dot(vector) }.maxBy { it.second }!!
+fun <T> nearestAngle(vector: Double3, objs: Iterable<T>, objAngle: (T) -> Double3): Pair<T, Double> =
+    objs.map { it to objAngle(it).dot(vector) }.maxBy { it.second }!!
 
-data class FaceCorners(val topLeft: Pair<ForgeDirection, ForgeDirection>,
-                       val topRight: Pair<ForgeDirection, ForgeDirection>,
-                       val bottomLeft: Pair<ForgeDirection, ForgeDirection>,
-                       val bottomRight: Pair<ForgeDirection, ForgeDirection>) {
+data class FaceCorners(
+    val topLeft: Pair<ForgeDirection, ForgeDirection>,
+    val topRight: Pair<ForgeDirection, ForgeDirection>,
+    val bottomLeft: Pair<ForgeDirection, ForgeDirection>,
+    val bottomRight: Pair<ForgeDirection, ForgeDirection>
+) {
     constructor(top: ForgeDirection, left: ForgeDirection) :
-    this(top to left, top to left.opposite, top.opposite to left, top.opposite to left.opposite)
+            this(top to left, top to left.opposite, top.opposite to left, top.opposite to left.opposite)
 
     val asArray = arrayOf(topLeft, topRight, bottomLeft, bottomRight)
     val asList = listOf(topLeft, topRight, bottomLeft, bottomRight)
 }
 
-val faceCorners = forgeDirs.map { when(it) {
-    DOWN -> FaceCorners(SOUTH, WEST)
-    UP -> FaceCorners(SOUTH, EAST)
-    NORTH -> FaceCorners(WEST, UP)
-    SOUTH -> FaceCorners(UP, WEST)
-    WEST -> FaceCorners(SOUTH, UP)
-    EAST ->FaceCorners(SOUTH, DOWN)
-    else -> FaceCorners(UNKNOWN, UNKNOWN)
-}}
+val faceCorners = forgeDirs.map {
+    when (it) {
+        DOWN -> FaceCorners(SOUTH, WEST)
+        UP -> FaceCorners(SOUTH, EAST)
+        NORTH -> FaceCorners(WEST, UP)
+        SOUTH -> FaceCorners(UP, WEST)
+        WEST -> FaceCorners(SOUTH, UP)
+        EAST -> FaceCorners(SOUTH, DOWN)
+        else -> FaceCorners(UNKNOWN, UNKNOWN)
+    }
+}
 

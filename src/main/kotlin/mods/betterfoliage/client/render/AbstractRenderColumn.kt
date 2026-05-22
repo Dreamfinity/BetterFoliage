@@ -3,7 +3,6 @@ package mods.betterfoliage.client.render
 import mods.betterfoliage.client.integration.ShadersModIntegration
 import mods.betterfoliage.client.render.AbstractRenderColumn.BlockType.*
 import mods.betterfoliage.client.render.AbstractRenderColumn.QuadrantType.*
-import mods.betterfoliage.loader.Refs
 import mods.octarinecore.client.render.*
 import net.minecraft.block.Block
 import net.minecraft.client.renderer.RenderBlocks
@@ -11,10 +10,13 @@ import net.minecraftforge.common.util.ForgeDirection.*
 
 /** Index of SOUTH-EAST quadrant. */
 const val SE = 0
+
 /** Index of NORTH-EAST quadrant. */
 const val NE = 1
+
 /** Index of NORTH-WEST quadrant. */
 const val NW = 2
+
 /** Index of SOUTH-WEST quadrant. */
 const val SW = 3
 
@@ -47,7 +49,7 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
     val extendTopSquare = model { columnSideSquare(0.5, 0.5 + radiusLarge, topExtension(radiusLarge)) }
     val extendTopRoundSmall = model { columnSide(radiusSmall, 0.5, 0.5 + radiusLarge, topExtension(radiusLarge)) }
     val extendTopRoundLarge = model { columnSide(radiusLarge, 0.5, 0.5 + radiusLarge, topExtension(radiusLarge)) }
-    inline fun extendTop(type: QuadrantType) = when(type) {
+    inline fun extendTop(type: QuadrantType) = when (type) {
         SMALL_RADIUS -> extendTopRoundSmall.model
         LARGE_RADIUS -> extendTopRoundLarge.model
         SQUARE -> extendTopSquare.model
@@ -56,8 +58,11 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
     }
 
     val extendBottomSquare = model { columnSideSquare(-0.5 - radiusLarge, -0.5, bottomExtension(radiusLarge)) }
-    val extendBottomRoundSmall = model { columnSide(radiusSmall, -0.5 - radiusLarge, -0.5, bottomExtension(radiusLarge)) }
-    val extendBottomRoundLarge = model { columnSide(radiusLarge, -0.5 - radiusLarge, -0.5, bottomExtension(radiusLarge)) }
+    val extendBottomRoundSmall =
+        model { columnSide(radiusSmall, -0.5 - radiusLarge, -0.5, bottomExtension(radiusLarge)) }
+    val extendBottomRoundLarge =
+        model { columnSide(radiusLarge, -0.5 - radiusLarge, -0.5, bottomExtension(radiusLarge)) }
+
     inline fun extendBottom(type: QuadrantType) = when (type) {
         SMALL_RADIUS -> extendBottomRoundSmall.model
         LARGE_RADIUS -> extendBottomRoundLarge.model
@@ -69,7 +74,7 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
     val topSquare = model { columnLidSquare() }
     val topRoundSmall = model { columnLid(radiusSmall) }
     val topRoundLarge = model { columnLid(radiusLarge) }
-    inline fun flatTop(type: QuadrantType) = when(type) {
+    inline fun flatTop(type: QuadrantType) = when (type) {
         SMALL_RADIUS -> topRoundSmall.model
         LARGE_RADIUS -> topRoundLarge.model
         SQUARE -> topSquare.model
@@ -77,10 +82,10 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
         else -> null
     }
 
-    val bottomSquare = model { columnLidSquare() { it.rotate(rot(EAST) * 2 + rot(UP)) } }
+    val bottomSquare = model { columnLidSquare { it.rotate(rot(EAST) * 2 + rot(UP)) } }
     val bottomRoundSmall = model { columnLid(radiusSmall) { it.rotate(rot(EAST) * 2 + rot(UP)) } }
     val bottomRoundLarge = model { columnLid(radiusLarge) { it.rotate(rot(EAST) * 2 + rot(UP)) } }
-    inline fun flatBottom(type: QuadrantType) = when(type) {
+    inline fun flatBottom(type: QuadrantType) = when (type) {
         SMALL_RADIUS -> bottomRoundSmall.model
         LARGE_RADIUS -> bottomRoundLarge.model
         SQUARE -> bottomSquare.model
@@ -98,12 +103,12 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
     inline fun continuous(q1: QuadrantType, q2: QuadrantType) =
         q1 == q2 || ((q1 == SQUARE || q1 == INVISIBLE) && (q2 == SQUARE || q2 == INVISIBLE))
 
-    abstract val axisFunc: (Block, Int)->Axis
-    abstract val blockPredicate: (Block, Int)->Boolean
+    abstract val axisFunc: (Block, Int) -> Axis
+    abstract val blockPredicate: (Block, Int) -> Boolean
 
     @Suppress("NON_EXHAUSTIVE_WHEN")
     override fun render(ctx: BlockContext, parent: RenderBlocks): Boolean {
-        if (ctx.isSurroundedBy(surroundPredicate) ) return false
+        if (ctx.isSurroundedBy(surroundPredicate)) return false
 
         // get AO data
         if (renderWorldBlockBase(parent, face = neverRender)) return true
@@ -129,7 +134,8 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
                 // disallow sharp discontinuities in the chamfer radius, or tapering-in where inappropriate
                 if (quadrants[idx] == LARGE_RADIUS &&
                     upType == PARALLEL && quadrantsTop[idx] != LARGE_RADIUS &&
-                    downType == PARALLEL && quadrantsBottom[idx] != LARGE_RADIUS) {
+                    downType == PARALLEL && quadrantsBottom[idx] != LARGE_RADIUS
+                ) {
                     quadrants[idx] = SMALL_RADIUS
                 }
 
@@ -139,6 +145,7 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
                     LARGE_RADIUS -> if (upType == PARALLEL && quadrantsTop[idx] == SMALL_RADIUS) transitionTop.model
                     else if (downType == PARALLEL && quadrantsBottom[idx] == SMALL_RADIUS) transitionBottom.model
                     else sideRoundLarge.model
+
                     SQUARE -> sideSquare.model
                     else -> null
                 }
@@ -171,6 +178,7 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
                             shouldRotateUp = false
                         }
                     }
+
                     PARALLEL -> {
                         if (!continuous(quadrants[idx], quadrantsTop[idx])) {
                             if (quadrants[idx] == SQUARE || quadrants[idx] == INVISIBLE) {
@@ -178,6 +186,7 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
                             }
                         }
                     }
+
                     else -> {}
                 }
                 when (downType) {
@@ -191,12 +200,15 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
                             shouldRotateDown = false
                         }
                     }
+
                     PARALLEL -> {
                         if (!continuous(quadrants[idx], quadrantsBottom[idx]) &&
-                            (quadrants[idx] == SQUARE || quadrants[idx] == INVISIBLE)) {
+                            (quadrants[idx] == SQUARE || quadrants[idx] == INVISIBLE)
+                        ) {
                             downModel = bottomSquare.model
                         }
                     }
+
                     else -> {}
                 }
 
@@ -228,7 +240,12 @@ abstract class AbstractRenderColumn(modId: String) : AbstractBlockRenderingHandl
     }
 
     /** Fill the array of [QuadrantType]s based on the blocks to the sides of this one. */
-    fun Array<QuadrantType>.checkNeighbors(ctx: BlockContext, rotation: Rotation, logAxis: Axis, yOff: Int): Array<QuadrantType> {
+    fun Array<QuadrantType>.checkNeighbors(
+        ctx: BlockContext,
+        rotation: Rotation,
+        logAxis: Axis,
+        yOff: Int
+    ): Array<QuadrantType> {
         val blkS = ctx.blockType(rotation, logAxis, Int3(0, yOff, 1))
         val blkE = ctx.blockType(rotation, logAxis, Int3(1, yOff, 0))
         val blkN = ctx.blockType(rotation, logAxis, Int3(0, yOff, -1))

@@ -13,15 +13,15 @@ class ConfigGuiFactory : IModGuiFactory {
     override fun mainConfigGuiClass() = ConfigGuiBetterFoliage::class.java
     override fun runtimeGuiCategories() = hashSetOf<RuntimeOptionCategoryElement>()
     override fun getHandlerFor(element: RuntimeOptionCategoryElement?) = null
-    override fun initialize(minecraftInstance: Minecraft?) { }
+    override fun initialize(minecraftInstance: Minecraft?) {}
 
     class ConfigGuiBetterFoliage(parentScreen: GuiScreen?) : GuiConfig(
-            parentScreen,
-            Config.rootGuiElements,
-            BetterFoliageMod.MOD_ID,
-            null,
-            false,
-            false,
-            BetterFoliageMod.MOD_NAME
+        parentScreen,
+        Config.rootGuiElements,
+        BetterFoliageMod.MOD_ID,
+        null,
+        false,
+        false,
+        BetterFoliageMod.MOD_NAME
     )
 }

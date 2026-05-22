@@ -35,6 +35,7 @@ class BlockMatcher(val domain: String, val path: String) : ConfigPropertyBase() 
         whiteList.forEach { if (it.isAssignableFrom(blockClass)) return true }
         return false
     }
+
     fun matchesID(block: Block) = blockIDs.contains(Block.blockRegistry.getIDForObject(block))
     fun matchesID(blockId: Int) = blockIDs.contains(blockId)
 
@@ -44,16 +45,16 @@ class BlockMatcher(val domain: String, val path: String) : ConfigPropertyBase() 
         blacklistProperty = target.get(categoryName, "${propertyName}Blacklist", defaults.first)
         whitelistProperty = target.get(categoryName, "${propertyName}Whitelist", defaults.second)
         listOf(blacklistProperty!!, whitelistProperty!!).forEach {
-            it.setConfigEntryClass(NonVerboseArrayEntry::class.java)
-            it.setLanguageKey("$langPrefix.$categoryName.${it.name}")
+            it.configEntryClass = NonVerboseArrayEntry::class.java
+            it.languageKey = "$langPrefix.$categoryName.${it.name}"
         }
         read()
     }
 
     override fun read() {
-        listOf(Pair(blackList, blacklistProperty!!), Pair(whiteList, whitelistProperty!!)).forEach {
-            it.first.clear()
-            it.first.addAll(it.second.stringList.map { getJavaClass(it) }.filterNotNull())
+        listOf(Pair(blackList, blacklistProperty!!), Pair(whiteList, whitelistProperty!!)).forEach { propertyEntry ->
+            propertyEntry.first.clear()
+            propertyEntry.first.addAll(propertyEntry.second.stringList.map { getJavaClass(it) }.filterNotNull())
         }
         updateIDs()
     }
@@ -74,21 +75,28 @@ class BlockMatcher(val domain: String, val path: String) : ConfigPropertyBase() 
         val blackList = arrayListOf<String>()
         val whiteList = arrayListOf<String>()
         val defaults = resourceManager[domain, path]?.getLines()
-        defaults?.map{ it.trim() }?.filter { !it.startsWith("//") && it.isNotEmpty() }?.forEach {
-            if (it.startsWith("-")) { blackList.add(it.substring(1)) }
-            else { whiteList.add(it) }
+        defaults?.map { it.trim() }?.filter { !it.startsWith("//") && it.isNotEmpty() }?.forEach {
+            if (it.startsWith("-")) {
+                blackList.add(it.substring(1))
+            } else {
+                whiteList.add(it)
+            }
         }
         return (blackList.toTypedArray() to whiteList.toTypedArray())
     }
 
     @SubscribeEvent
-    fun onWorldLoad(event: WorldEvent.Load) { if (event.world is WorldClient) updateIDs() }
+    fun onWorldLoad(event: WorldEvent.Load) {
+        if (event.world is WorldClient) updateIDs()
+    }
 
-    init { MinecraftForge.EVENT_BUS.register(this) }
+    init {
+        MinecraftForge.EVENT_BUS.register(this)
+    }
 
 }
 
-abstract class SimpleBlockMatcher() {
+abstract class SimpleBlockMatcher {
 
     val blockIDs = hashSetOf<Int>()
 
@@ -104,7 +112,11 @@ abstract class SimpleBlockMatcher() {
     }
 
     @SubscribeEvent(priority = EventPriority.LOW)
-    fun onWorldLoad(event: WorldEvent.Load) { if (event.world is WorldClient) updateIDs() }
+    fun onWorldLoad(event: WorldEvent.Load) {
+        if (event.world is WorldClient) updateIDs()
+    }
 
-    init { MinecraftForge.EVENT_BUS.register(this) }
+    init {
+        MinecraftForge.EVENT_BUS.register(this)
+    }
 }

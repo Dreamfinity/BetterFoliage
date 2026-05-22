@@ -1,9 +1,10 @@
 package mods.octarinecore.client.resource
 
 import java.awt.image.BufferedImage
-import java.lang.Math.*
+import java.lang.Math.max
 
-class CenteringTextureGenerator(domain: String, val aspectWidth: Int, val aspectHeight: Int) : TextureGenerator(domain) {
+class CenteringTextureGenerator(domain: String, val aspectWidth: Int, val aspectHeight: Int) :
+    TextureGenerator(domain) {
 
     override fun generate(params: ParameterList): BufferedImage? {
         val target = targetResource(params)!!
@@ -18,7 +19,7 @@ class CenteringTextureGenerator(domain: String, val aspectWidth: Int, val aspect
         val graphics = resultTexture.createGraphics()
 
         // iterate all frames
-        for (frame in 0 .. frames - 1) {
+        for (frame in 0..frames - 1) {
             val baseFrame = baseTexture.getSubimage(0, size * frame, frameWidth, frameHeight)
             val resultFrame = BufferedImage(size, size, BufferedImage.TYPE_4BYTE_ABGR)
 

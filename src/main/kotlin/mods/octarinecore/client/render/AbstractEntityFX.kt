@@ -10,8 +10,10 @@ import net.minecraft.world.World
 abstract class AbstractEntityFX(world: World, x: Double, y: Double, z: Double) : EntityFX(world, x, y, z) {
 
     companion object {
-        @JvmStatic val sin = Array(64) { idx -> Math.sin(PI2 / 64.0 * idx) }
-        @JvmStatic val cos = Array(64) { idx -> Math.cos(PI2 / 64.0 * idx) }
+        @JvmStatic
+        val sin = Array(64) { idx -> Math.sin(PI2 / 64.0 * idx) }
+        @JvmStatic
+        val cos = Array(64) { idx -> Math.cos(PI2 / 64.0 * idx) }
     }
 
     val billboardRot = Pair(Double3.zero, Double3.zero)
@@ -25,8 +27,8 @@ abstract class AbstractEntityFX(world: World, x: Double, y: Double, z: Double) :
         prevPos.setTo(prevPosX, prevPosY, prevPosZ)
         velocity.setTo(motionX, motionY, motionZ)
         update()
-        posX = currentPos.x; posY = currentPos.y; posZ = currentPos.z;
-        motionX = velocity.x; motionY = velocity.y; motionZ = velocity.z;
+        posX = currentPos.x; posY = currentPos.y; posZ = currentPos.z
+        motionX = velocity.x; motionY = velocity.y; motionZ = velocity.z
     }
 
     /** Render the particle. */
@@ -39,9 +41,19 @@ abstract class AbstractEntityFX(world: World, x: Double, y: Double, z: Double) :
     abstract val isValid: Boolean
 
     /** Add the particle to the effect renderer if it is valid. */
-    fun addIfValid() { if (isValid) Minecraft.getMinecraft().effectRenderer.addEffect(this) }
+    fun addIfValid() {
+        if (isValid) Minecraft.getMinecraft().effectRenderer.addEffect(this)
+    }
 
-    override fun renderParticle(tessellator: Tessellator, partialTickTime: Float, rotX: Float, rotZ: Float, rotYZ: Float, rotXY: Float, rotXZ: Float) {
+    override fun renderParticle(
+        tessellator: Tessellator,
+        partialTickTime: Float,
+        rotX: Float,
+        rotZ: Float,
+        rotYZ: Float,
+        rotXY: Float,
+        rotXZ: Float
+    ) {
         billboardRot.first.setTo(rotX + rotXY, rotZ, rotYZ + rotXZ)
         billboardRot.second.setTo(rotX - rotXY, -rotZ, rotYZ - rotXZ)
         render(tessellator, partialTickTime)
@@ -60,26 +72,39 @@ abstract class AbstractEntityFX(world: World, x: Double, y: Double, z: Double) :
      * @param[isMirrored] mirror particle texture along V-axis
      * @param[alpha] aplha blending
      */
-    fun renderParticleQuad(tessellator: Tessellator,
-                           partialTickTime: Float,
-                           currentPos: Double3 = this.currentPos,
-                           prevPos: Double3 = this.prevPos,
-                           size: Double = particleScale.toDouble(),
-                           rotation: Int = 0,
-                           icon: IIcon = particleIcon,
-                           isMirrored: Boolean = false,
-                           alpha: Float = this.particleAlpha) {
+    fun renderParticleQuad(
+        tessellator: Tessellator,
+        partialTickTime: Float,
+        currentPos: Double3 = this.currentPos,
+        prevPos: Double3 = this.prevPos,
+        size: Double = particleScale.toDouble(),
+        rotation: Int = 0,
+        icon: IIcon = particleIcon,
+        isMirrored: Boolean = false,
+        alpha: Float = this.particleAlpha
+    ) {
 
         val minU = (if (isMirrored) icon.minU else icon.maxU).toDouble()
         val maxU = (if (isMirrored) icon.maxU else icon.minU).toDouble()
         val minV = icon.minV.toDouble()
         val maxV = icon.maxV.toDouble()
 
-        val center = currentPos.copy().sub(prevPos).mul(partialTickTime.toDouble()).add(prevPos).sub(interpPosX, interpPosY, interpPosZ)
+        val center = currentPos.copy().sub(prevPos).mul(partialTickTime.toDouble()).add(prevPos)
+            .sub(interpPosX, interpPosY, interpPosZ)
         val v1 = if (rotation == 0) billboardRot.first * size else
-            Double3.weight(billboardRot.first, cos[rotation and 63] * size, billboardRot.second, sin[rotation and 63] * size)
+            Double3.weight(
+                billboardRot.first,
+                cos[rotation and 63] * size,
+                billboardRot.second,
+                sin[rotation and 63] * size
+            )
         val v2 = if (rotation == 0) billboardRot.second * size else
-            Double3.weight(billboardRot.first, -sin[rotation and 63] * size, billboardRot.second, cos[rotation and 63] * size)
+            Double3.weight(
+                billboardRot.first,
+                -sin[rotation and 63] * size,
+                billboardRot.second,
+                cos[rotation and 63] * size
+            )
 
         tessellator.setColorRGBA_F(this.particleRed, this.particleGreen, this.particleBlue, alpha)
         tessellator.addVertexWithUV(center.x - v1.x, center.y - v1.y, center.z - v1.z, maxU, maxV)

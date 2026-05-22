@@ -1,7 +1,6 @@
 package mods.octarinecore.client.resource
 
 import cpw.mods.fml.client.FMLClientHandler
-import mods.betterfoliage.loader.Refs
 import mods.octarinecore.metaprog.reflectField
 import net.minecraft.client.resources.IResourcePack
 import net.minecraft.client.resources.data.IMetadataSerializer
@@ -9,7 +8,6 @@ import net.minecraft.client.resources.data.PackMetadataSection
 import net.minecraft.util.ChatComponentText
 import net.minecraft.util.ResourceLocation
 import java.io.InputStream
-import java.util.*
 
 /**
  * [IResourcePack] containing generated resources. Adds itself to the default resource pack list
@@ -29,19 +27,19 @@ class GeneratorPack(val name: String, vararg val generators: GeneratorBase) : IR
     override fun getPackImage() = null
     override fun getResourceDomains() = HashSet(generators.map { it.domain })
     override fun getPackMetadata(serializer: IMetadataSerializer?, type: String?) =
-            if (type == "pack") PackMetadataSection(ChatComponentText("Generated resources"), 1) else null
+        if (type == "pack") PackMetadataSection(ChatComponentText("Generated resources"), 1) else null
 
     override fun resourceExists(location: ResourceLocation?): Boolean =
-            if (location == null) false
-            else generators.find {
-                it.domain == location.resourceDomain && it.resourceExists(location)
-            } != null
+        if (location == null) false
+        else generators.find {
+            it.domain == location.resourceDomain && it.resourceExists(location)
+        } != null
 
     override fun getInputStream(location: ResourceLocation?): InputStream? =
-            if (location == null) null
-            else generators.filter {
-                it.domain == location.resourceDomain && it.resourceExists(location)
-            }.map { it.getInputStream(location) }
+        if (location == null) null
+        else generators.filter {
+            it.domain == location.resourceDomain && it.resourceExists(location)
+        }.map { it.getInputStream(location) }
             .filterNotNull().first()
 
     operator fun get(location: ResourceLocation?) = getInputStream(location)
@@ -70,10 +68,10 @@ abstract class GeneratorBase(val domain: String) {
  */
 class ParameterList(val params: Map<String, String>, val value: String?) {
     override fun toString() =
-            params.entries
+        params.entries
             .sortedBy { it.key }
-            .fold("") { result, entry -> result + "|${entry.key}=${entry.value}"} +
-            (value?.let { "|$it" } ?: "")
+            .fold("") { result, entry -> result + "|${entry.key}=${entry.value}" } +
+                (value?.let { "|$it" } ?: "")
 
     /** Return the value of the given parameter. */
     operator fun get(key: String) = params[key]
@@ -94,7 +92,7 @@ class ParameterList(val params: Map<String, String>, val value: String?) {
         fun fromString(input: String): ParameterList {
             val params = hashMapOf<String, String>()
             var value: String? = null
-            val slices = input.dropWhile { it != '|'}.split('|')
+            val slices = input.dropWhile { it != '|' }.split('|')
             slices.forEach {
                 if (it.contains('=')) {
                     val keyValue = it.split('=')
@@ -120,7 +118,8 @@ abstract class ParameterBasedGenerator(domain: String) : GeneratorBase(domain) {
     abstract fun getInputStream(params: ParameterList): InputStream?
 
     override fun resourceExists(location: ResourceLocation?) =
-            resourceExists(ParameterList.fromString(location?.resourcePath ?: ""))
+        resourceExists(ParameterList.fromString(location?.resourcePath ?: ""))
+
     override fun getInputStream(location: ResourceLocation?) =
-            getInputStream(ParameterList.fromString(location?.resourcePath ?: ""))
+        getInputStream(ParameterList.fromString(location?.resourcePath ?: ""))
 }

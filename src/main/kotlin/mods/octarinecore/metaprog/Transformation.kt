@@ -1,8 +1,9 @@
 package mods.octarinecore.metaprog
 
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin
+import mods.octarinecore.metaprog.Namespace.MCP
+import mods.octarinecore.metaprog.Namespace.OBF
 import net.minecraft.launchwrapper.IClassTransformer
-import mods.octarinecore.metaprog.Namespace.*
 import org.apache.logging.log4j.LogManager
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassWriter
@@ -32,14 +33,14 @@ open class Transformer : IClassTransformer {
     var environment: Namespace = MCP
 
     /** The list of transformers and targets. */
-    var transformers: MutableList<Pair<MethodRef, MethodTransformContext.()->Unit>> = arrayListOf()
+    var transformers: MutableList<Pair<MethodRef, MethodTransformContext.() -> Unit>> = arrayListOf()
 
     /** Add a transformation to perform. Call this during instance initialization.
      *
      * @param[method] the target method of the transformation
      * @param[trans] method transformation lambda
      */
-    fun transformMethod(method: MethodRef, trans: MethodTransformContext.()->Unit) = transformers.add(method to trans)
+    fun transformMethod(method: MethodRef, trans: MethodTransformContext.() -> Unit) = transformers.add(method to trans)
 
     override fun transform(name: String?, transformedName: String?, classData: ByteArray?): ByteArray? {
         if (classData == null) return null
@@ -48,17 +49,24 @@ open class Transformer : IClassTransformer {
         val classNode = ClassNode().apply { val reader = ClassReader(classData); reader.accept(this, 0) }
         var workDone = false
 
-        val transformations: List<Pair<MethodTransformContext.()->Unit, MethodNode?>> = transformers.map { transformer ->
-            if (transformedName != transformer.first.parentClass.mcpName) return@map transformer.second to null
-            log.debug("Found class: $name -> $transformedName")
-            log.debug("  searching: ${transformer.first.name(OBF)} ${transformer.first.asmDescriptor(OBF)} -> ${transformer.first.name(MCP)} ${transformer.first.asmDescriptor(MCP)}")
-            transformer.second to classNode.methods.find {
-                log.debug("             ${it.name} ${it.desc}")
+        val transformations: List<Pair<MethodTransformContext.() -> Unit, MethodNode?>> =
+            transformers.map { transformer ->
+                if (transformedName != transformer.first.parentClass.mcpName) return@map transformer.second to null
+                log.debug("Found class: $name -> $transformedName")
+                log.debug(
+                    "  searching: ${transformer.first.name(OBF)} ${transformer.first.asmDescriptor(OBF)} -> ${
+                        transformer.first.name(
+                            MCP
+                        )
+                    } ${transformer.first.asmDescriptor(MCP)}"
+                )
+                transformer.second to classNode.methods.find {
+                    log.debug("             ${it.name} ${it.desc}")
 
-                it.name == transformer.first.name(MCP) && it.desc == transformer.first.asmDescriptor(MCP) ||
-                it.name == transformer.first.name(OBF) && it.desc == transformer.first.asmDescriptor(OBF)
+                    it.name == transformer.first.name(MCP) && it.desc == transformer.first.asmDescriptor(MCP) ||
+                            it.name == transformer.first.name(OBF) && it.desc == transformer.first.asmDescriptor(OBF)
+                }
             }
-        }
 
         transformations.filter { it.second != null }.forEach {
             synchronized(it.second!!) {
@@ -66,7 +74,7 @@ open class Transformer : IClassTransformer {
                     val trans = it.first
                     MethodTransformContext(it.second!!, environment).trans()
                     workDone = true
-                } catch (e: Throwable) {
+                } catch (_: Throwable) {
                     log.warn("Error transforming method ${it.second!!.name} ${it.second!!.desc}")
                 }
             }
@@ -97,7 +105,7 @@ class MethodTransformContext(val method: MethodNode, val environment: Namespace)
     }
 
     /** Find the first instruction in the current [MethodNode] that matches a predicate. */
-    fun find(predicate: (AbstractInsnNode)->Boolean): AbstractInsnNode? = find(method.instructions.first, predicate)
+    fun find(predicate: (AbstractInsnNode) -> Boolean): AbstractInsnNode? = find(method.instructions.first, predicate)
 
     /** Find the first instruction in the current [MethodNode] with the given opcode. */
     fun find(opcode: Int) = find { it.opcode == opcode }
@@ -107,7 +115,7 @@ class MethodTransformContext(val method: MethodNode, val environment: Namespace)
      *
      * @param[init] builder-style lambda to assemble instruction list
      */
-    fun AbstractInsnNode.insertAfter(init: InstructionList.()->Unit) = InstructionList(environment).apply{
+    fun AbstractInsnNode.insertAfter(init: InstructionList.() -> Unit) = InstructionList(environment).apply {
         this.init(); list.reversed().forEach { method.instructions.insert(this@insertAfter, it) }
     }
 
@@ -116,7 +124,7 @@ class MethodTransformContext(val method: MethodNode, val environment: Namespace)
      *
      * @param[init] builder-style lambda to assemble instruction list
      */
-    fun AbstractInsnNode.insertBefore(init: InstructionList.()->Unit) = InstructionList(environment).apply{
+    fun AbstractInsnNode.insertBefore(init: InstructionList.() -> Unit) = InstructionList(environment).apply {
         this.init(); list.forEach { method.instructions.insertBefore(this@insertBefore, it) }
     }
 
@@ -136,7 +144,7 @@ class MethodTransformContext(val method: MethodNode, val environment: Namespace)
      *
      * @param[init] builder-style lambda to assemble instruction list
      */
-    fun Pair<AbstractInsnNode, AbstractInsnNode>.replace(init: InstructionList.()->Unit) {
+    fun Pair<AbstractInsnNode, AbstractInsnNode>.replace(init: InstructionList.() -> Unit) {
         val beforeInsn = first.previous
         remove()
         beforeInsn.insertAfter(init)
@@ -148,7 +156,7 @@ class MethodTransformContext(val method: MethodNode, val environment: Namespace)
      * @param[opcode] instruction opcode
      * @param[idx] variable the opcode references
      */
-    fun varinsn(opcode: Int, idx: Int): (AbstractInsnNode)->Boolean = { insn ->
+    fun varinsn(opcode: Int, idx: Int): (AbstractInsnNode) -> Boolean = { insn ->
         insn.opcode == opcode && insn is VarInsnNode && insn.`var` == idx
     }
 }
@@ -177,23 +185,27 @@ class InstructionList(val environment: Namespace) {
      * @param[target] the target method of the instruction
      * @param[isInterface] true if the target method is defined by an interface
      */
-    fun invokeStatic(target: MethodRef, isInterface: Boolean = false) = list.add(MethodInsnNode(
+    fun invokeStatic(target: MethodRef, isInterface: Boolean = false) = list.add(
+        MethodInsnNode(
             Opcodes.INVOKESTATIC,
             target.parentClass.name(environment).replace(".", "/"),
             target.name(environment),
             target.asmDescriptor(environment),
             isInterface
-    ))
+        )
+    )
 
     /**
      * Adds a GETFIELD instruction.
      *
      * @param[target] the target field of the instruction
      */
-    fun getField(target: FieldRef) = list.add(FieldInsnNode(
+    fun getField(target: FieldRef) = list.add(
+        FieldInsnNode(
             Opcodes.GETFIELD,
             target.parentClass.name(environment).replace(".", "/"),
             target.name(environment),
             target.asmDescriptor(environment)
-    ))
+        )
+    )
 }

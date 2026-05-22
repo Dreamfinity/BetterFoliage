@@ -2,7 +2,8 @@ package mods.betterfoliage.loader
 
 import cpw.mods.fml.relauncher.FMLLaunchHandler
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin
-import mods.octarinecore.metaprog.*
+import mods.octarinecore.metaprog.ASMPlugin
+import mods.octarinecore.metaprog.Transformer
 import org.objectweb.asm.Opcodes.*
 
 @IFMLLoadingPlugin.TransformerExclusions(

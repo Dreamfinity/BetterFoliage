@@ -33,7 +33,9 @@ import kotlin.reflect.KProperty
  */
 abstract class DelegatingConfig(val modId: String, val langPrefix: String) {
 
-    init { FMLCommonHandler.instance().bus().register(this) }
+    init {
+        FMLCommonHandler.instance().bus().register(this)
+    }
 
     /** The [Configuration] backing this config object. */
     var config: Configuration? = null
@@ -57,7 +59,7 @@ abstract class DelegatingConfig(val modId: String, val langPrefix: String) {
         for (category in subProperties.keySet()) {
             val configCategory = config.getCategory(category)
             configCategory.setLanguageKey("$langPrefix.$category")
-            configCategory.setPropertyOrder(subProperties[category])
+            configCategory.propertyOrder = subProperties[category]
             rootGuiElements.add(ConfigElement<String>(configCategory))
         }
         save()
@@ -67,7 +69,7 @@ abstract class DelegatingConfig(val modId: String, val langPrefix: String) {
      * Execute the given lambda for all config properties.
      * Lambda params: (category name, property name, property instance)
      */
-    inline fun forEachProperty(init: (String, String, ConfigPropertyBase)->Unit) {
+    inline fun forEachProperty(init: (String, String, ConfigPropertyBase) -> Unit) {
         reflectFieldsOfType(ConfigPropertyBase::class.java).forEach { property ->
             init("global", property.first.split("$")[0], property.second as ConfigPropertyBase)
         }
@@ -79,7 +81,9 @@ abstract class DelegatingConfig(val modId: String, val langPrefix: String) {
     }
 
     /** Save changes to the [Configuration]. */
-    fun save() { if (config?.hasChanged() ?: false) config!!.save() }
+    fun save() {
+        if (config?.hasChanged() ?: false) config!!.save()
+    }
 
     /**
      * Returns true if any of the given configuration elements have changed.
@@ -102,7 +106,9 @@ abstract class DelegatingConfig(val modId: String, val langPrefix: String) {
     }
 
     @SubscribeEvent
-    fun handleConfigChange(event: ConfigChangedEvent.OnConfigChangedEvent) { if (event.modID == modId) onChange(event) }
+    fun handleConfigChange(event: ConfigChangedEvent.OnConfigChangedEvent) {
+        if (event.modID == modId) onChange(event)
+    }
 
     /** Extension to get the underlying delegate of a field */
     operator fun Any.get(name: String) = this.reflectField<ConfigPropertyBase>("$name\$delegate")
@@ -134,14 +140,15 @@ abstract class ConfigPropertyBase {
 }
 
 /** Delegate for a property backed by a single [Property] instance. */
-abstract class ConfigPropertyDelegate<T>() : ConfigPropertyBase() {
+abstract class ConfigPropertyDelegate<T> : ConfigPropertyBase() {
     /** Cached value of the property. */
     var cached: T? = null
+
     /** The [Property] backing this delegate. */
     var property: Property? = null
 
     override val guiProperties: List<Property> get() = listOf(property!!)
-    override val hasChanged: Boolean  get() =  property?.hasChanged() ?: false
+    override val hasChanged: Boolean get() = property?.hasChanged() ?: false
 
     /** Chained setter for the language key. */
     fun lang(lang: String) = apply { this.lang = lang }
@@ -168,12 +175,14 @@ abstract class ConfigPropertyDelegate<T>() : ConfigPropertyBase() {
         property!!.write(value)
     }
 
-    override fun read() { cached = null }
+    override fun read() {
+        cached = null
+    }
 
     override fun attach(target: Configuration, langPrefix: String, categoryName: String, propertyName: String) {
         cached = null
         property = resolve(target, categoryName, propertyName)
-        property!!.setLanguageKey("$langPrefix.$lang")
+        property!!.languageKey = "$langPrefix.$lang"
     }
 }
 
@@ -181,7 +190,8 @@ abstract class ConfigPropertyDelegate<T>() : ConfigPropertyBase() {
 class ConfigPropertyDouble(val min: Double, val max: Double, val default: Double) :
     ConfigPropertyDelegate<Double>() {
     override fun resolve(target: Configuration, category: String, name: String) =
-            target.get(category, name, default, null).apply { setMinValue(min); setMaxValue(max) }
+        target.get(category, name, default, null).apply { setMinValue(min); setMaxValue(max) }
+
     override fun Property.read() = property!!.double
     override fun Property.write(value: Double) = property!!.set(value)
 }
@@ -191,15 +201,17 @@ class ConfigPropertyFloat(val min: Double, val max: Double, val default: Double)
     ConfigPropertyDelegate<Float>() {
     override fun resolve(target: Configuration, category: String, name: String) =
         target.get(category, name, default, null).apply { setMinValue(min); setMaxValue(max) }
+
     override fun Property.read() = property!!.double.toFloat()
     override fun Property.write(value: Float) = property!!.set(value.toDouble())
 }
 
 /** [Int]-typed property delegate. */
 class ConfigPropertyInt(val min: Int, val max: Int, val default: Int) :
-        ConfigPropertyDelegate<Int>() {
+    ConfigPropertyDelegate<Int>() {
     override fun resolve(target: Configuration, category: String, name: String) =
-            target.get(category, name, default, null).apply { setMinValue(min); setMaxValue(max) }
+        target.get(category, name, default, null).apply { setMinValue(min); setMaxValue(max) }
+
     override fun Property.read() = property!!.int
     override fun Property.write(value: Int) = property!!.set(value)
 }
@@ -208,16 +220,18 @@ class ConfigPropertyInt(val min: Int, val max: Int, val default: Int) :
 class ConfigPropertyBoolean(val default: Boolean) :
     ConfigPropertyDelegate<Boolean>() {
     override fun resolve(target: Configuration, category: String, name: String) =
-            target.get(category, name, default, null)
+        target.get(category, name, default, null)
+
     override fun Property.read() = property!!.boolean
     override fun Property.write(value: Boolean) = property!!.set(value)
 }
 
 /** [Int] array typed property delegate. */
-class ConfigPropertyIntList(val defaults: ()->Array<Int>) :
-        ConfigPropertyDelegate<Array<Int>>() {
+class ConfigPropertyIntList(val defaults: () -> Array<Int>) :
+    ConfigPropertyDelegate<Array<Int>>() {
     override fun resolve(target: Configuration, category: String, name: String) =
-            target.get(category, name, defaults().toIntArray(), null)
+        target.get(category, name, defaults().toIntArray(), null)
+
     override fun Property.read() = property!!.intList.toTypedArray()
     override fun Property.write(value: Array<Int>) = property!!.set(value.toIntArray())
 }
@@ -228,5 +242,5 @@ class ConfigPropertyIntList(val defaults: ()->Array<Int>) :
 fun double(min: Double = 0.0, max: Double = 1.0, default: Double) = ConfigPropertyDouble(min, max, default)
 fun float(min: Double = 0.0, max: Double = 1.0, default: Double) = ConfigPropertyFloat(min, max, default)
 fun int(min: Int = 0, max: Int, default: Int) = ConfigPropertyInt(min, max, default)
-fun intList(defaults: ()->Array<Int>) = ConfigPropertyIntList(defaults)
+fun intList(defaults: () -> Array<Int>) = ConfigPropertyIntList(defaults)
 fun boolean(default: Boolean) = ConfigPropertyBoolean(default)

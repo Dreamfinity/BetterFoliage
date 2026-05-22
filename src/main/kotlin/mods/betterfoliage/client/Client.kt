@@ -10,7 +10,10 @@ import mods.betterfoliage.client.integration.IC2Integration
 import mods.betterfoliage.client.integration.ShadersModIntegration
 import mods.betterfoliage.client.integration.TFCIntegration
 import mods.betterfoliage.client.render.*
-import mods.betterfoliage.client.texture.*
+import mods.betterfoliage.client.texture.GrassGenerator
+import mods.betterfoliage.client.texture.GrassRegistry
+import mods.betterfoliage.client.texture.LeafGenerator
+import mods.betterfoliage.client.texture.LeafRegistry
 import mods.octarinecore.client.KeyHandler
 import mods.octarinecore.client.resource.CenteringTextureGenerator
 import mods.octarinecore.client.resource.GeneratorPack

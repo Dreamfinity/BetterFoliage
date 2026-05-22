@@ -8,19 +8,16 @@ import cpw.mods.fml.common.network.NetworkCheckHandler
 import cpw.mods.fml.relauncher.Side
 import mods.betterfoliage.client.Client
 import mods.betterfoliage.client.config.Config
-import mods.betterfoliage.client.integration.ShadersModIntegration
-import mods.betterfoliage.client.integration.TFCIntegration
-import mods.betterfoliage.loader.Refs
-import mods.octarinecore.metaprog.ClassRef
 import net.minecraftforge.common.config.Configuration
-import org.apache.logging.log4j.Level.*
+import org.apache.logging.log4j.Level.INFO
 import org.apache.logging.log4j.Logger
 
 @Mod(
     modid = BetterFoliageMod.MOD_ID,
     name = BetterFoliageMod.MOD_NAME,
     acceptedMinecraftVersions = BetterFoliageMod.MC_VERSIONS,
-    guiFactory = BetterFoliageMod.GUI_FACTORY
+    guiFactory = BetterFoliageMod.GUI_FACTORY,
+    acceptableRemoteVersions = "*"
 )
 object BetterFoliageMod {
 

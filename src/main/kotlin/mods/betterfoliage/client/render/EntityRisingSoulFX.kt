@@ -12,11 +12,11 @@ import mods.octarinecore.forEachPairIndexed
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.util.MathHelper
 import net.minecraft.world.World
-import org.apache.logging.log4j.Level.*
+import org.apache.logging.log4j.Level.INFO
 import java.util.*
 
 class EntityRisingSoulFX(world: World, x: Int, y: Int, z: Int) :
-AbstractEntityFX(world, x.toDouble() + 0.5, y.toDouble() + 1.0, z.toDouble() + 0.5) {
+    AbstractEntityFX(world, x.toDouble() + 0.5, y.toDouble() + 1.0, z.toDouble() + 0.5) {
 
     val particleTrail: Deque<Double3> = LinkedList<Double3>()
     val initialPhase = rand.nextInt(64)
@@ -44,7 +44,8 @@ AbstractEntityFX(world, x.toDouble() + 0.5, y.toDouble() + 1.0, z.toDouble() + 0
         var alpha = Config.risingSoul.opacity
         if (particleAge > particleMaxAge - 40) alpha *= (particleMaxAge - particleAge) / 40.0f
 
-        renderParticleQuad(tessellator, partialTickTime,
+        renderParticleQuad(
+            tessellator, partialTickTime,
             size = Config.risingSoul.headSize * 0.25,
             alpha = alpha
         )
@@ -53,7 +54,8 @@ AbstractEntityFX(world, x.toDouble() + 0.5, y.toDouble() + 1.0, z.toDouble() + 0
         particleTrail.forEachPairIndexed { idx, current, previous ->
             scale *= Config.risingSoul.sizeDecay
             alpha *= Config.risingSoul.opacityDecay
-            if (idx % Config.risingSoul.trailDensity == 0) renderParticleQuad(tessellator, partialTickTime,
+            if (idx % Config.risingSoul.trailDensity == 0) renderParticleQuad(
+                tessellator, partialTickTime,
                 currentPos = current,
                 prevPos = previous,
                 size = scale,

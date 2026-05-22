@@ -12,8 +12,8 @@ class RenderConnectedGrassLog : AbstractBlockRenderingHandler(BetterFoliageMod.M
 
     override fun isEligible(ctx: BlockContext) =
         Config.enabled && Config.roundLogs.enabled && Config.roundLogs.connectGrass &&
-        Config.blocks.dirt.matchesID(ctx.block) &&
-        Config.blocks.logs.matchesID(ctx.block(up1))
+                Config.blocks.dirt.matchesID(ctx.block) &&
+                Config.blocks.logs.matchesID(ctx.block(up1))
 
     override fun render(ctx: BlockContext, parent: RenderBlocks): Boolean {
         val grassDir = grassCheckDirs.find {

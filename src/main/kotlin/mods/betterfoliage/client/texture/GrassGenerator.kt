@@ -1,9 +1,6 @@
 package mods.betterfoliage.client.texture
 
-import mods.betterfoliage.client.Client
 import mods.octarinecore.client.resource.*
-import net.minecraft.util.ResourceLocation
-import org.apache.logging.log4j.Level
 import java.awt.image.BufferedImage
 
 /**
@@ -27,7 +24,7 @@ class GrassGenerator(domain: String) : TextureGenerator(domain) {
         val frames = baseTexture.height / size
 
         // iterate all frames
-        for (frame in 0 .. frames - 1) {
+        for (frame in 0..frames - 1) {
             val baseFrame = baseTexture.getSubimage(0, size * frame, size, size)
             val grassFrame = BufferedImage(size, size, BufferedImage.TYPE_4BYTE_ABGR)
 

@@ -22,14 +22,14 @@ class RenderReeds : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) {
         listOf(
             // below waterline
             verticalRectangle(x1 = -0.5, z1 = 0.5, x2 = 0.5, z2 = -0.5, yBottom = 0.5, yTop = 0.5 + waterline)
-            .setFlatShader(FlatOffsetNoColor(up1)).clampUV(minV = vCutLine),
+                .setFlatShader(FlatOffsetNoColor(up1)).clampUV(minV = vCutLine),
 
             // above waterline
             verticalRectangle(x1 = -0.5, z1 = 0.5, x2 = 0.5, z2 = -0.5, yBottom = 0.5 + waterline, yTop = 0.5 + height)
-            .setFlatShader(FlatOffsetNoColor(up2)).clampUV(maxV = vCutLine)
+                .setFlatShader(FlatOffsetNoColor(up2)).clampUV(maxV = vCutLine)
         ).forEach {
             it.clampUV(minU = -0.25, maxU = 0.25)
-            .toCross(UP) { it.move(xzDisk(modelIdx) * Config.reed.hOffset) }.addAll()
+                .toCross(UP) { it.move(xzDisk(modelIdx) * Config.reed.hOffset) }.addAll()
         }
     }
 
@@ -39,12 +39,12 @@ class RenderReeds : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) {
 
     override fun isEligible(ctx: BlockContext) =
         Config.enabled && Config.reed.enabled &&
-        ctx.cameraDistance < Config.reed.distance &&
-        ctx.block(up2).material == Material.air &&
-        ctx.block(up1).material == Material.water &&
-        Config.blocks.dirt.matchesID(ctx.block) &&
-        ctx.biomeId in Config.reed.biomes &&
-        noise[ctx.x, ctx.z] < Config.reed.population
+                ctx.cameraDistance < Config.reed.distance &&
+                ctx.block(up2).material == Material.air &&
+                ctx.block(up1).material == Material.water &&
+                Config.blocks.dirt.matchesID(ctx.block) &&
+                ctx.biomeId in Config.reed.biomes &&
+                noise[ctx.x, ctx.z] < Config.reed.population
 
     override fun render(ctx: BlockContext, parent: RenderBlocks): Boolean {
         if (renderWorldBlockBase(parent, face = alwaysRender)) return true

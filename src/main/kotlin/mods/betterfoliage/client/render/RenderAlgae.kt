@@ -7,7 +7,6 @@ import mods.betterfoliage.client.integration.ShadersModIntegration
 import mods.octarinecore.client.render.*
 import net.minecraft.block.material.Material
 import net.minecraft.client.renderer.RenderBlocks
-import net.minecraft.init.Blocks
 import org.apache.logging.log4j.Level.INFO
 
 class RenderAlgae : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) {
@@ -23,12 +22,12 @@ class RenderAlgae : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) {
 
     override fun isEligible(ctx: BlockContext) =
         Config.enabled && Config.algae.enabled &&
-        ctx.cameraDistance < Config.algae.distance &&
-        ctx.block(up2).material == Material.water &&
-        ctx.block(up1).material == Material.water &&
-        Config.blocks.dirt.matchesID(ctx.block) &&
-        ctx.biomeId in Config.algae.biomes &&
-        noise[ctx.x, ctx.z] < Config.algae.population
+                ctx.cameraDistance < Config.algae.distance &&
+                ctx.block(up2).material == Material.water &&
+                ctx.block(up1).material == Material.water &&
+                Config.blocks.dirt.matchesID(ctx.block) &&
+                ctx.biomeId in Config.algae.biomes &&
+                noise[ctx.x, ctx.z] < Config.algae.population
 
     override fun render(ctx: BlockContext, parent: RenderBlocks): Boolean {
         if (renderWorldBlockBase(parent, face = alwaysRender)) return true

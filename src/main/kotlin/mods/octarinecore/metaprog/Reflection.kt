@@ -1,10 +1,11 @@
 @file:JvmName("Reflection")
+
 package mods.octarinecore.metaprog
 
-import java.lang.reflect.Field
-import java.lang.reflect.Method
 import mods.octarinecore.metaprog.Namespace.*
 import mods.octarinecore.tryDefault
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 /** Get a Java class with the given name. */
 fun getJavaClass(name: String) = tryDefault(null) { Class.forName(name) }
@@ -28,9 +29,10 @@ inline fun <reified T> Class<*>.reflectStaticField(field: String): T? =
  *
  * @return [Pair]s of (name, instance)
  */
-val Any.reflectNestedObjects: List<Pair<String, Any>> get() = this.javaClass.declaredClasses.map {
-    tryDefault(null) { it.name.split("$")[1] to it.getField("INSTANCE").get(null) }
-}.filterNotNull()
+val Any.reflectNestedObjects: List<Pair<String, Any>>
+    get() = this.javaClass.declaredClasses.map {
+        tryDefault(null) { it.name.split("$")[1] to it.getField("INSTANCE").get(null) }
+    }.filterNotNull()
 
 /**
  * Get all fields of this instance that match (or subclass) any of the given classes.
@@ -40,8 +42,7 @@ val Any.reflectNestedObjects: List<Pair<String, Any>> get() = this.javaClass.dec
  */
 fun Any.reflectFieldsOfType(vararg types: Class<*>) = this.javaClass.declaredFields
     .filter { field -> types.any { it.isAssignableFrom(field.type) } }
-    .map { field -> field.name to field.let { it.isAccessible = true; it.get(this) } }
-    .filterNotNull()
+    .mapNotNull { field -> field.name to field.let { it.isAccessible = true; it.get(this) } }
 
 enum class Namespace { OBF, SRG, MCP }
 
@@ -69,10 +70,10 @@ open class ClassRef(val mcpName: String, val obfName: String) : Resolvable<Class
         val void = ClassRefPrimitive("V", null)
     }
 
-    fun name(namespace: Namespace) = if (namespace == Namespace.OBF) obfName else mcpName
+    fun name(namespace: Namespace) = if (namespace == OBF) obfName else mcpName
     open fun asmDescriptor(namespace: Namespace) = "L${name(namespace).replace(".", "/")};"
 
-    override fun resolve() = listOf(mcpName, obfName).map { getJavaClass(it) }.filterNotNull().firstOrNull()
+    override fun resolve() = listOf(mcpName, obfName).mapNotNull { getJavaClass(it) }.firstOrNull()
 }
 
 /**
@@ -96,29 +97,38 @@ class ClassRefPrimitive(name: String, val clazz: Class<*>?) : ClassRef(name) {
  * @param[returnType] reference to the return type
  * @param[returnType] references to the argument types
  */
-class MethodRef(val parentClass: ClassRef,
-                val mcpName: String,
-                val srgName: String?,
-                val obfName: String?,
-                val returnType: ClassRef,
-                vararg argTypes: ClassRef
+class MethodRef(
+    val parentClass: ClassRef,
+    val mcpName: String,
+    val srgName: String?,
+    val obfName: String?,
+    val returnType: ClassRef,
+    vararg argTypes: ClassRef
 ) : Resolvable<Method>() {
     constructor(parentClass: ClassRef, mcpName: String, returnType: ClassRef, vararg argTypes: ClassRef) :
-    this(parentClass, mcpName, mcpName, mcpName, returnType, *argTypes)
+            this(parentClass, mcpName, mcpName, mcpName, returnType, *argTypes)
 
     val argTypes = argTypes
 
-    fun name(namespace: Namespace) = when(namespace) { OBF -> obfName!!; SRG -> srgName!!; MCP -> mcpName }
-    fun asmDescriptor(namespace: Namespace) = "(${argTypes.map { it.asmDescriptor(namespace) }.fold(""){ s1, s2 -> s1 + s2 } })${returnType.asmDescriptor(namespace)}"
+    fun name(namespace: Namespace) = when (namespace) {
+        OBF -> obfName!!; SRG -> srgName!!; MCP -> mcpName
+    }
+
+    fun asmDescriptor(namespace: Namespace) =
+        "(${argTypes.map { it.asmDescriptor(namespace) }.fold("") { s1, s2 -> s1 + s2 }})${
+            returnType.asmDescriptor(namespace)
+        }"
 
     override fun resolve(): Method? =
         if (parentClass.element == null || argTypes.any { it.element == null }) null
         else {
             val args = argTypes.map { it.element!! }.toTypedArray()
-            listOf(srgName!!, mcpName).map { tryDefault(null) {
-                parentClass.element!!.getDeclaredMethod(it, *args)
-            }}.filterNotNull().firstOrNull()
-            ?.apply { isAccessible = true }
+            listOf(srgName!!, mcpName).mapNotNull {
+                tryDefault(null) {
+                    parentClass.element!!.getDeclaredMethod(it, *args)
+                }
+            }.firstOrNull()
+                ?.apply { isAccessible = true }
         }
 
     /** Invoke this method using reflection. */
@@ -138,24 +148,36 @@ class MethodRef(val parentClass: ClassRef,
  * @param[obfName] obfuscated name of the field
  * @param[type] reference to the field type. Only necessary for transformation, not reflection
  */
-class FieldRef(val parentClass: ClassRef,
-               val mcpName: String,
-               val srgName: String?,
-               val obfName: String?,
-               val type: ClassRef?
+class FieldRef(
+    val parentClass: ClassRef,
+    val mcpName: String,
+    val srgName: String?,
+    val obfName: String?,
+    val type: ClassRef?
 ) : Resolvable<Field>() {
-    constructor(parentClass: ClassRef, mcpName: String, type: ClassRef?) : this(parentClass, mcpName, mcpName, mcpName, type)
+    constructor(parentClass: ClassRef, mcpName: String, type: ClassRef?) : this(
+        parentClass,
+        mcpName,
+        mcpName,
+        mcpName,
+        type
+    )
 
-    fun name(namespace: Namespace) = when(namespace) { OBF -> obfName!!; SRG -> srgName!!; MCP -> mcpName }
+    fun name(namespace: Namespace) = when (namespace) {
+        OBF -> obfName!!; SRG -> srgName!!; MCP -> mcpName
+    }
+
     fun asmDescriptor(namespace: Namespace) = type!!.asmDescriptor(namespace)
 
     override fun resolve(): Field? =
         if (parentClass.element == null) null
         else {
-            listOf(srgName!!, mcpName).map { tryDefault(null) {
-                parentClass.element!!.getDeclaredField(it)
-            }}.filterNotNull().firstOrNull()
-            ?.apply{ isAccessible = true }
+            listOf(srgName!!, mcpName).firstNotNullOfOrNull {
+                tryDefault(null) {
+                    parentClass.element!!.getDeclaredField(it)
+                }
+            }
+                ?.apply { isAccessible = true }
         }
 
     /** Get this field using reflection. */

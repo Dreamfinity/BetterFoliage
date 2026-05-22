@@ -16,12 +16,14 @@ import org.apache.logging.log4j.Level
 @SideOnly(Side.CLIENT)
 object IC2Integration {
 
-    @JvmStatic val vanillaLogAxis = Client.logRenderer.axisFunc
-    @JvmStatic val isAvailable = Loader.isModLoaded("IC2")
+    @JvmStatic
+    val vanillaLogAxis = Client.logRenderer.axisFunc
+    @JvmStatic
+    val isAvailable = Loader.isModLoaded("IC2")
 
     val ic2Logs = object : SimpleBlockMatcher() {
         override fun matchesClass(block: Block) = Config.blocks.logs.matchesClass(block) &&
-            block.javaClass.name.equals("ic2.core.block.BlockRubWood")
+                block.javaClass.name.equals("ic2.core.block.BlockRubWood")
     }
 
     init {

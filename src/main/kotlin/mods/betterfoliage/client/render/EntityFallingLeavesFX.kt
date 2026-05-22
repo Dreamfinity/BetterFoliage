@@ -25,10 +25,11 @@ import java.lang.Math.*
 import java.util.*
 
 class EntityFallingLeavesFX(world: World, x: Int, y: Int, z: Int) :
-AbstractEntityFX(world, x.toDouble() + 0.5, y.toDouble(), z.toDouble() + 0.5) {
+    AbstractEntityFX(world, x.toDouble() + 0.5, y.toDouble(), z.toDouble() + 0.5) {
 
     companion object {
-        @JvmStatic val biomeBrightnessMultiplier = 0.5f
+        @JvmStatic
+        val biomeBrightnessMultiplier = 0.5f
     }
 
     var particleRot = rand.nextInt(64)
@@ -57,12 +58,12 @@ AbstractEntityFX(world, x.toDouble() + 0.5, y.toDouble(), z.toDouble() + 0.5) {
         if (onGround || wasOnGround) {
             velocity.setTo(0.0, 0.0, 0.0)
             if (!wasOnGround) {
-                particleAge = Math.max(particleAge, particleMaxAge - 20)
+                particleAge = max(particleAge, particleMaxAge - 20)
                 wasOnGround = true
             }
         } else {
             velocity.setTo(cos[particleRot], 0.0, sin[particleRot]).mul(Config.fallingLeaves.perturb)
-                    .add(LeafWindTracker.current).add(0.0, -1.0, 0.0).mul(Config.fallingLeaves.speed)
+                .add(LeafWindTracker.current).add(0.0, -1.0, 0.0).mul(Config.fallingLeaves.speed)
             particleRot = (particleRot + (if (rotPositive) 1 else -1)) and 63
         }
     }
@@ -106,7 +107,7 @@ object LeafWindTracker {
         nextChange = world.worldInfo.worldTime + 120 + random.nextInt(80)
         val direction = PI2 * random.nextDouble()
         val speed = abs(random.nextGaussian()) * Config.fallingLeaves.windStrength +
-            (if (!world.isRaining) 0.0 else abs(random.nextGaussian()) * Config.fallingLeaves.stormStrength)
+                (if (!world.isRaining) 0.0 else abs(random.nextGaussian()) * Config.fallingLeaves.stormStrength)
         target.setTo(cos(direction) * speed, 0.0, sin(direction) * speed)
     }
 
@@ -127,5 +128,7 @@ object LeafWindTracker {
     }
 
     @SubscribeEvent
-    fun handleWorldLoad(event: WorldEvent.Load) { if (event.world.isRemote) changeWind(event.world) }
+    fun handleWorldLoad(event: WorldEvent.Load) {
+        if (event.world.isRemote) changeWind(event.world)
+    }
 }

@@ -1,11 +1,9 @@
 package mods.betterfoliage.client.texture
 
 import mods.betterfoliage.BetterFoliageMod
-import mods.betterfoliage.client.Client
 import mods.octarinecore.client.resource.*
 import mods.octarinecore.stripStart
 import net.minecraft.util.ResourceLocation
-import org.apache.logging.log4j.Level
 import java.awt.image.BufferedImage
 
 /**
@@ -38,7 +36,7 @@ class LeafGenerator(domain: String) : TextureGenerator(domain) {
         val graphics = leafTexture.createGraphics()
 
         // iterate all frames
-        for (frame in 0 .. frames - 1) {
+        for (frame in 0..frames - 1) {
             val baseFrame = baseTexture.getSubimage(0, size * frame, size, size)
             val leafFrame = BufferedImage(size * 2, size * 2, BufferedImage.TYPE_4BYTE_ABGR)
 
@@ -52,7 +50,7 @@ class LeafGenerator(domain: String) : TextureGenerator(domain) {
 
             // overlay alpha mask
             if (target.first == ResourceType.COLOR && maskTexture != null) {
-                for (x in 0 .. size * 2 - 1) for (y in 0 .. size * 2 - 1) {
+                for (x in 0..size * 2 - 1) for (y in 0..size * 2 - 1) {
                     val basePixel = leafFrame[x, y].toLong() and 0xFFFFFFFFL
                     val maskPixel = maskTexture[scale(x), scale(y)].toLong() and 0xFF000000L or 0xFFFFFFL
                     leafFrame[x, y] = (basePixel and maskPixel).toInt()

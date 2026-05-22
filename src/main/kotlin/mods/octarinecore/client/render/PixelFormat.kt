@@ -1,4 +1,5 @@
 @file:JvmName("PixelFormat")
+
 package mods.octarinecore.client.render
 
 import java.awt.Color
@@ -30,10 +31,12 @@ infix fun Int.colorMul(f: Float): Int {
 /** Sum the components of all packed brightness values given. */
 fun brSum(multiplier: Float?, vararg brightness: Int): Int {
     val sum = Array(brightnessComponents.size) { 0 }
-    brightnessComponents.forEachIndexed { idx, shift -> brightness.forEach { br ->
-        val comp = (br shr shift) and 15
-        sum[idx] += comp
-    } }
+    brightnessComponents.forEachIndexed { idx, shift ->
+        brightness.forEach { br ->
+            val comp = (br shr shift) and 15
+            sum[idx] += comp
+        }
+    }
     var result = 0
     brightnessComponents.forEachIndexed { idx, shift ->
         val comp = if (multiplier == null)
@@ -65,5 +68,6 @@ data class HSB(var hue: Float, var saturation: Float, var brightness: Float) {
             return HSB(hsbVals[0], hsbVals[1], hsbVals[2])
         }
     }
+
     val asColor: Int get() = Color.HSBtoRGB(hue, saturation, brightness)
 }

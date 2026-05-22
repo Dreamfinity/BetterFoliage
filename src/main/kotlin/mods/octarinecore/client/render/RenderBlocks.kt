@@ -24,12 +24,23 @@ class ExtendedRenderBlocks : RenderBlocks() {
     /** Captures the AO values and textures used in a specific rendering pass when rendering a block. */
     val capture = ShadingCapture()
 
-    override fun renderFaceXPos(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) = renderFace(EAST, block, x, y, z, icon)
-    override fun renderFaceXNeg(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) = renderFace(WEST, block, x, y, z, icon)
-    override fun renderFaceYPos(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) = renderFace(UP, block, x, y, z, icon)
-    override fun renderFaceYNeg(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) = renderFace(DOWN, block, x, y, z, icon)
-    override fun renderFaceZPos(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) = renderFace(SOUTH, block, x, y, z, icon)
-    override fun renderFaceZNeg(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) = renderFace(NORTH, block, x, y, z, icon)
+    override fun renderFaceXPos(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) =
+        renderFace(EAST, block, x, y, z, icon)
+
+    override fun renderFaceXNeg(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) =
+        renderFace(WEST, block, x, y, z, icon)
+
+    override fun renderFaceYPos(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) =
+        renderFace(UP, block, x, y, z, icon)
+
+    override fun renderFaceYNeg(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) =
+        renderFace(DOWN, block, x, y, z, icon)
+
+    override fun renderFaceZPos(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) =
+        renderFace(SOUTH, block, x, y, z, icon)
+
+    override fun renderFaceZNeg(block: Block?, x: Double, y: Double, z: Double, icon: IIcon?) =
+        renderFace(NORTH, block, x, y, z, icon)
 
     /**
      * Render a block face, saving relevant data if appropriate.

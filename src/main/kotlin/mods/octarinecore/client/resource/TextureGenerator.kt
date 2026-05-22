@@ -1,7 +1,6 @@
 package mods.octarinecore.client.resource
 
 import mods.octarinecore.client.resource.ResourceType.*
-import mods.octarinecore.stripStart
 import net.minecraft.client.resources.IResource
 import net.minecraft.util.ResourceLocation
 import java.awt.image.BufferedImage
@@ -34,7 +33,7 @@ abstract class TextureGenerator(domain: String) : ParameterBasedGenerator(domain
         textureLocation(iconName).let {
             ParameterList(
                 mapOf("dom" to it.resourceDomain, "path" to it.resourcePath) +
-                    extraParams.map { Pair(it.first, it.second.toString()) },
+                        extraParams.map { Pair(it.first, it.second.toString()) },
                 "generate"
             ).toString()
         }
@@ -48,7 +47,7 @@ abstract class TextureGenerator(domain: String) : ParameterBasedGenerator(domain
             if (listOf("dom", "path").all { it in params })
                 ResourceLocation(params["dom"]!!, params["path"]!!)
             else return null
-        return when(params.value?.toLowerCase()) {
+        return when (params.value?.toLowerCase()) {
             "generate.png" -> COLOR to baseTexture + ".png"
             "generate.png.mcmeta" -> METADATA to baseTexture + ".png.mcmeta"
             "generate_n.png" -> NORMAL to baseTexture + "_n.png"
@@ -62,7 +61,7 @@ abstract class TextureGenerator(domain: String) : ParameterBasedGenerator(domain
 
     override fun getInputStream(params: ParameterList): InputStream? {
         val target = targetResource(params)
-        return when(target?.first) {
+        return when (target?.first) {
             null -> null
             METADATA -> resourceManager[target!!.second]?.inputStream
             else -> generate(params)?.asStream
@@ -81,10 +80,12 @@ abstract class TextureGenerator(domain: String) : ParameterBasedGenerator(domain
      * @param[maskPath] Location of the texture of the given size
      *
      */
-    fun getMultisizeTexture(maxSize: Int, maskPath: (Int)->ResourceLocation): IResource? {
+    fun getMultisizeTexture(maxSize: Int, maskPath: (Int) -> ResourceLocation): IResource? {
         var size = maxSize
         val sizes = mutableListOf<Int>()
-        while(size > 2) { sizes.add(size); size /= 2 }
+        while (size > 2) {
+            sizes.add(size); size /= 2
+        }
         return sizes.map { resourceManager[maskPath(it)] }.filterNotNull().firstOrNull()
     }
 }

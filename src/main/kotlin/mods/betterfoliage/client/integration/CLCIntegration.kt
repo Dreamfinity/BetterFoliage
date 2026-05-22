@@ -3,7 +3,7 @@ package mods.betterfoliage.client.integration
 import mods.betterfoliage.client.Client
 import mods.betterfoliage.loader.Refs
 import mods.octarinecore.client.render.brightnessComponents
-import org.apache.logging.log4j.Level.*
+import org.apache.logging.log4j.Level.INFO
 
 /**
  * Integration for Colored Lights Core.

@@ -1,4 +1,5 @@
 @file:JvmName("Utils")
+
 package mods.octarinecore.client.gui
 
 import net.minecraft.util.EnumChatFormatting

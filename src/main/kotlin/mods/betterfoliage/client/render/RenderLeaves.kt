@@ -18,24 +18,24 @@ class RenderLeaves : AbstractBlockRenderingHandler(BetterFoliageMod.MOD_ID) {
 
     val leavesModel = model {
         verticalRectangle(x1 = -0.5, z1 = 0.5, x2 = 0.5, z2 = -0.5, yBottom = -0.5 * 1.41, yTop = 0.5 * 1.41)
-        .setAoShader(edgeOrientedAuto(corner = cornerAoMaxGreen))
-        .setFlatShader(FlatOffset(Int3.zero))
-        .scale(Config.leaves.size)
-        .toCross(UP).addAll()
+            .setAoShader(edgeOrientedAuto(corner = cornerAoMaxGreen))
+            .setFlatShader(FlatOffset(Int3.zero))
+            .scale(Config.leaves.size)
+            .toCross(UP).addAll()
     }
     val snowedIcon = iconSet(BetterFoliageMod.LEGACY_DOMAIN, "better_leaves_snowed_%d")
 
     val perturbs = vectorSet(64) { idx ->
         val angle = PI2 * idx / 64.0
         Double3(cos(angle), 0.0, sin(angle)) * Config.leaves.hOffset +
-            UP.vec * random(-1.0, 1.0) * Config.leaves.vOffset
+                UP.vec * random(-1.0, 1.0) * Config.leaves.vOffset
     }
 
     override fun isEligible(ctx: BlockContext) =
         Config.enabled &&
-        Config.leaves.enabled &&
-        ctx.cameraDistance < Config.leaves.distance &&
-        Config.blocks.leaves.matchesID(ctx.block)
+                Config.leaves.enabled &&
+                ctx.cameraDistance < Config.leaves.distance &&
+                Config.blocks.leaves.matchesID(ctx.block)
 
     override fun render(ctx: BlockContext, parent: RenderBlocks): Boolean {
         val isSnowed = ctx.block(up1).material.let {

@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.ForgeDirection.*
 typealias QuadIconResolver = (ShadingContext, Int, Quad) -> IIcon
 typealias PostProcessLambda = RenderVertex.(ShadingContext, Int, Quad, Int, Vertex) -> Unit
 
-class ModelRenderer() : ShadingContext() {
+class ModelRenderer : ShadingContext() {
 
     /** Holds final vertex data before it goes to the [Tessellator]. */
     val temp = RenderVertex()
@@ -80,7 +80,7 @@ open class ShadingContext {
  *
  */
 @Suppress("NOTHING_TO_INLINE")
-class RenderVertex() {
+class RenderVertex {
     var x: Double = 0.0
     var y: Double = 0.0
     var z: Double = 0.0
@@ -96,12 +96,17 @@ class RenderVertex() {
         x = result.x; y = result.y; z = result.z
         return this
     }
+
     fun init(vertex: Vertex): RenderVertex {
-        x = vertex.xyz.x; y = vertex.xyz.y; z = vertex.xyz.z;
+        x = vertex.xyz.x; y = vertex.xyz.y; z = vertex.xyz.z
         u = vertex.uv.u; v = vertex.uv.v
         return this
     }
-    fun translate(trans: Double3): RenderVertex { x += trans.x; y += trans.y; z += trans.z; return this }
+
+    fun translate(trans: Double3): RenderVertex {
+        x += trans.x; y += trans.y; z += trans.z; return this
+    }
+
     fun rotate(rot: Rotation): RenderVertex {
         if (rot === Rotation.identity) return this
         val rotX = rot.rotatedComponent(EAST, x, y, z)
@@ -110,14 +115,27 @@ class RenderVertex() {
         x = rotX; y = rotY; z = rotZ
         return this
     }
+
     inline fun rotateUV(n: Int): RenderVertex {
         when (n % 4) {
-            1 -> { val t = v; v = -u; u = t; return this }
-            2 -> { u = -u; v = -v; return this }
-            3 -> { val t = -v; v = u; u = t; return this }
-            else -> { return this }
+            1 -> {
+                val t = v; v = -u; u = t; return this
+            }
+
+            2 -> {
+                u = -u; v = -v; return this
+            }
+
+            3 -> {
+                val t = -v; v = u; u = t; return this
+            }
+
+            else -> {
+                return this
+            }
         }
     }
+
     inline fun setIcon(icon: IIcon): RenderVertex {
         u = (icon.maxU - icon.minU) * (u + 0.5) + icon.minU
         v = (icon.maxV - icon.minV) * (v + 0.5) + icon.minV
@@ -128,11 +146,13 @@ class RenderVertex() {
         val grey = Math.min((red + green + blue) * 0.333f * level, 1.0f)
         red = grey; green = grey; blue = grey
     }
+
     inline fun multiplyColor(color: Int) {
         red *= (color shr 16 and 255) / 256.0f
         green *= (color shr 8 and 255) / 256.0f
         blue *= (color and 255) / 256.0f
     }
+
     inline fun setColor(color: Int) {
         red = (color shr 16 and 255) / 256.0f
         green = (color shr 8 and 255) / 256.0f

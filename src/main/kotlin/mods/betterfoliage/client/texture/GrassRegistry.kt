@@ -78,7 +78,8 @@ object GrassRegistry {
 
     fun registerGrass(atlas: TextureMap, icon: TextureAtlasSprite) {
         val hsb = HSB.fromColor(icon.averageColor ?: defaultGrassColor)
-        val overrideColor = if (hsb.saturation > Config.shortGrass.saturationThreshold) hsb.copy(brightness = 0.8f).asColor else null
+        val overrideColor =
+            if (hsb.saturation > Config.shortGrass.saturationThreshold) hsb.copy(brightness = 0.8f).asColor else null
         grass.put(icon, GrassInfo(icon, overrideColor))
     }
 

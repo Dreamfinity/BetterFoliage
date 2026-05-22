@@ -1,6 +1,5 @@
 package mods.betterfoliage.client.texture
 
-import cpw.mods.fml.common.FMLCommonHandler
 import cpw.mods.fml.common.eventhandler.EventPriority
 import cpw.mods.fml.common.eventhandler.SubscribeEvent
 import cpw.mods.fml.relauncher.Side
@@ -17,7 +16,8 @@ import net.minecraft.util.IIcon
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.event.TextureStitchEvent
 import net.minecraftforge.common.MinecraftForge
-import org.apache.logging.log4j.Level.*
+import org.apache.logging.log4j.Level.INFO
+import org.apache.logging.log4j.Level.WARN
 
 const val defaultLeafColor = 0
 

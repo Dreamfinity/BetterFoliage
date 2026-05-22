@@ -1,4 +1,5 @@
 @file:JvmName("Utils")
+
 package mods.betterfoliage.client.texture
 
 fun blendRGB(rgb1: Int, rgb2: Int, weight1: Int, weight2: Int): Int {
