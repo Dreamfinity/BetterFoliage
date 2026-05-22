@@ -65,7 +65,7 @@ object LeafRegistry {
 
         Block.blockRegistry.forEach { block ->
             if (Config.blocks.leaves.matchesClass(block as Block)) {
-                block.registerBlockIcons { location ->
+                block.registerIcons { location ->
                     val original = event.map.getTextureExtry(location)
                     Client.log(INFO, "Found leaf texture: $location")
                     registerLeaf(event.map, original)
@@ -76,7 +76,7 @@ object LeafRegistry {
                             ctmIcons.forEach { registerLeaf(event.map, it as TextureAtlasSprite) }
                         }
                     }
-                    return@registerBlockIcons original
+                    return@registerIcons original
                 }
 
                 if (OptifineCTM.isAvailable) OptifineCTM.getAllCTM(block).let { ctmIcons ->

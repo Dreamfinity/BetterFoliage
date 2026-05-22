@@ -26,6 +26,7 @@ kotlin {
 
 minecraft {
     version = "${property("mc_version")}-${property("forge_version")}-${property("mc_version")}"
+    mappings = "stable_12"
     runDir = "run"
 }
 

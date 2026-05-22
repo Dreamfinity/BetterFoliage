@@ -51,7 +51,7 @@ object GrassRegistry {
 
         Block.blockRegistry.forEach { block ->
             if (Config.blocks.grass.matchesClass(block as Block)) {
-                block.registerBlockIcons { location ->
+                block.registerIcons { location ->
                     val original = event.map.getTextureExtry(location)
                     Client.log(DEBUG, "Found grass texture: $location")
                     registerGrass(event.map, original)
@@ -63,7 +63,7 @@ object GrassRegistry {
                         }
                     }
 
-                    return@registerBlockIcons original
+                    return@registerIcons original
                 }
 
                 if (OptifineCTM.isAvailable) OptifineCTM.getAllCTM(block).let { ctmIcons ->
@@ -80,7 +80,7 @@ object GrassRegistry {
         val hsb = HSB.fromColor(icon.averageColor ?: defaultGrassColor)
         val overrideColor =
             if (hsb.saturation > Config.shortGrass.saturationThreshold) hsb.copy(brightness = 0.8f).asColor else null
-        grass.put(icon, GrassInfo(icon, overrideColor))
+        grass[icon] = GrassInfo(icon, overrideColor)
     }
 
 }

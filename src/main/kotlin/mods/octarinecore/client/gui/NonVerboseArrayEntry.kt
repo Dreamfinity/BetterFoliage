@@ -16,7 +16,7 @@ class NonVerboseArrayEntry(
         stripTooltipDefaultText(toolTip as MutableList<String>)
         val shortDefaults = I18n.format("${configElement.languageKey}.arrayEntry", configElement.defaults.size)
         toolTip.addAll(
-            mc.fontRenderer.listFormattedStringToWidth(
+            mc.fontRendererObj.listFormattedStringToWidth(
                 "$AQUA${
                     I18n.format(
                         "fml.configgui.tooltip.default",
