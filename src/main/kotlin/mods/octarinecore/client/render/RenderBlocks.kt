@@ -46,6 +46,7 @@ class ExtendedRenderBlocks : RenderBlocks() {
             DOWN -> super.renderFaceYNeg(block, x, y, z, icon)
             SOUTH -> super.renderFaceZPos(block, x, y, z, icon)
             NORTH -> super.renderFaceZNeg(block, x, y, z, icon)
+            else -> {}
         }
     }
 
