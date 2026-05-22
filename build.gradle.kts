@@ -47,7 +47,8 @@ tasks.processResources {
 
 val coremodManifest = mapOf(
     "FMLCorePlugin" to "mods.betterfoliage.loader.BetterFoliageLoader",
-    "FMLCorePluginContainsFMLMod" to "mods.betterfoliage.BetterFoliageMod"
+    "FMLCorePluginContainsFMLMod" to "mods.betterfoliage.BetterFoliageMod",
+    "FMLAT" to "BetterFoliage_at.cfg"
 )
 
 tasks.jar {
